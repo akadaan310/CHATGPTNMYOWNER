@@ -4,7 +4,7 @@
 :root{
   --vel:#E7DFCC; --vel2:#DED4BD; --sunk:#D2C6AA;
   --ink:#3A2F1C; --ink2:#6B5C42; --ink3:#94856B;
-  --hi:#FFFAF0; --lo:#A8987A;
+  --hi:#FFFBF2; --lo:#9A8863;
   --brass:#8A6D24; --brass2:#B89344;
   --nassi:#0E5560; --manqul:#4C3D78; --idraki:#8A5410;
   --glow:#0E556033;
@@ -21,8 +21,8 @@
 body{margin:0; background:#0A0805; color:var(--ink);
   font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:14px;
   -webkit-font-smoothing:antialiased; overflow-x:hidden}
-.q{font-family:"Amiri Quran",Amiri,serif; direction:rtl}
-.ar{font-family:Amiri,serif; direction:rtl}
+.q{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif; direction:rtl}
+.ar{font-family:Amiri,"Noto Naskh Arabic",serif; direction:rtl}
 
 /* ---------- the vessel ---------- */
 #vessel{max-width:520px; margin:0 auto; min-height:100vh; position:relative;
@@ -50,10 +50,10 @@ body{margin:0; background:#0A0805; color:var(--ink);
 
 /* ---------- embossed text ---------- */
 .emb{color:transparent;
-  text-shadow:0 1px 0 var(--hi), 0 -1px 1px var(--lo), 0 0 2px #00000018}
+  text-shadow:0 1px 0 var(--hi), 0 -1px 1px var(--lo), 0 1px 2px #00000022}
 :root[data-theme="dark"] .emb{text-shadow:0 1px 0 var(--hi), 0 -1px 1px var(--lo)}
-.line{font-family:"Amiri Quran",Amiri,serif; direction:rtl; line-height:2.05;
-  margin:0 0 3px; word-spacing:.08em}
+.line{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif; direction:rtl; line-height:2.05;
+  margin:0 0 3px; word-spacing:.04em}
 .w{position:relative; display:inline}
 
 /* ---------- retlah rows ---------- */
@@ -130,7 +130,7 @@ body{margin:0; background:#0A0805; color:var(--ink);
   cursor:pointer; border:1px solid var(--sunk); background:#00000005; font:inherit; color:inherit}
 :root[data-theme="dark"] .opt{background:#FFFFFF05}
 .opt:hover,.opt.sel{border-color:var(--brass); background:#8A6D2414}
-.opt .t{font-family:"Amiri Quran",Amiri,serif; direction:rtl; font-size:19px; line-height:1.9;
+.opt .t{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif; direction:rtl; font-size:19px; line-height:1.9;
   margin-bottom:3px; color:var(--ink)}
 .opt .m{font-size:9.5px; color:var(--ink3); display:flex; gap:9px; align-items:center}
 .opt .m .bb{color:var(--brass)}
@@ -150,7 +150,7 @@ body{margin:0; background:#0A0805; color:var(--ink);
   align-items:center; justify-content:center; cursor:pointer; padding:30px;
   background:linear-gradient(#E7DFCC,#DED4BD)}
 :root[data-theme="dark"] #sukun{background:linear-gradient(#241C12,#1C160E)}
-#sukun .b{font-family:"Amiri Quran",Amiri,serif; font-size:clamp(27px,7.4vw,38px);
+#sukun .b{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif; font-size:clamp(27px,7.4vw,38px);
   direction:rtl; line-height:2; text-align:center}
 #sukun .t{margin-top:34px; font-size:9.5px; letter-spacing:.24em; text-transform:uppercase;
   color:var(--ink3); animation:breathe 3.4s ease-in-out infinite}
@@ -315,6 +315,11 @@ function retlah(role, spans, opts){
 
 /* ============ nodes and the traced path ============ */
 let NODES=[];
+/* A رتلة renders several spans as one continuous line, so the destination's first
+   word is NOT index 1 — it is offset by the length of every span before it. */
+function spanStart(spans, i){
+  let n=0; for(let j=0;j<i;j++) n += (spans[j][3]-spans[j][2]+1); return n;
+}
 function nodeOn(row, idx, kind, bits, peak){
   const ws = row.querySelectorAll('.w');
   const w = ws[Math.min(idx, ws.length-1)];
@@ -322,7 +327,7 @@ function nodeOn(row, idx, kind, bits, peak){
   const fr = field.getBoundingClientRect(), wr = w.getBoundingClientRect();
   const n = el('div','node '+(kind||'')+' '+(peak?'peak':'live'));
   n.style.left = (wr.left - fr.left + wr.width*0.5)+'px';
-  n.style.top  = (wr.top  - fr.top  + wr.height*0.28)+'px';
+  n.style.top  = (wr.top  - fr.top  + wr.height*0.12)+'px';
   n.style.setProperty('--p', (2.0 + Math.random()*1.8).toFixed(2)+'s');
   field.appendChild(n); NODES.push(n);
   if(peak) Audio_.ping(bits);
@@ -401,15 +406,21 @@ async function injira(){
   const anchor = retlah('مَحْمِل', [[1,1,1,4]], {anchor:true});
   const an = nodeOn(anchor, 0, '', 15, true);
   await wait(900);
+  const seen = new Set();
   for(let i=0;i<D.basm.length;i++){
-    if(!D.basm[i].opts.length) continue;
-    const o = D.basm[i].opts[0], alt = D.basm[i].opts.slice(1,3);
-    const r = retlah('توسّع', [[1,1,D.basm[i].w,D.basm[i].w], [o.to[0],o.to[1],o.span[0],o.span[1]]]);
+    /* heaviest branch that has not already been reached — the frontier grows,
+       so each رتلة lands somewhere new rather than repeating one destination */
+    const fresh = D.basm[i].opts.filter(o=>!seen.has(o.to[0]+':'+o.to[1]));
+    if(!fresh.length) continue;
+    const o = fresh[0], alt = fresh.slice(1,3);
+    seen.add(o.to[0]+':'+o.to[1]);
+    const spans = [[1,1,D.basm[i].w,D.basm[i].w], [o.to[0],o.to[1],o.span[0],o.span[1]]];
+    const r = retlah('توسّع', spans);
     const from = nodeOn(r, 0, '', o.bits, false);
-    const to   = nodeOn(r, 1, o.ty==='نصّي'?'':'i', o.bits, true);
+    const to   = nodeOn(r, spanStart(spans,1), o.ty==='نصّي'?'':'i', o.bits, true);
     /* the instrument visibly considers, then commits */
     if(alt.length && !reduce){
-      const ghosts = alt.map(a=>nodeOn(r, 1, 'i', a.bits, false));
+      const ghosts = alt.map(a=>nodeOn(r, spanStart(spans,1), 'i', a.bits, false));
       await wait(520);
       ghosts.forEach(gn=>{ gn.style.transition='opacity .5s'; gn.style.opacity='0';
         setTimeout(()=>gn.remove(),520); });
@@ -459,16 +470,18 @@ async function miqat(){
   await wait(800);
   for(const d of D.alm){
     if(ST!=='مِيقَات') return;
-    const row = retlah('دُخُول', [[2,1,1,1],[d.to[0],d.to[1],d.span[0],d.span[1]]]);
-    const a=nodeOn(row,0,'',15,false), b=nodeOn(row,1,'',15,true);
+    const sp=[[2,1,1,1],[d.to[0],d.to[1],d.span[0],d.span[1]]];
+    const row = retlah('دُخُول', sp);
+    const a=nodeOn(row,0,'',15,false), b=nodeOn(row,spanStart(sp,1),'',15,true);
     await trace(a,b,15.2,900);
     await wait(330);
   }
   await wait(600);
   if(ST!=='مِيقَات') return;
   const c = D.cross;
-  const x = retlah('جَمْع', [[c.alr.to[0],c.alr.to[1],1,1],[c.almr.to[0],c.almr.to[1],c.almr.span[0],c.almr.span[1]]]);
-  const xa=nodeOn(x,0,'',15,false), xb=nodeOn(x,1,'',15,true);
+  const xsp=[[c.alr.to[0],c.alr.to[1],1,1],[c.almr.to[0],c.almr.to[1],c.almr.span[0],c.almr.span[1]]];
+  const x = retlah('جَمْع', xsp);
+  const xa=nodeOn(x,0,'',15,false), xb=nodeOn(x,spanStart(xsp,1),'',15,true);
   await trace(xa,xb,15.2,1200);
   const h = el('div','hint');
   h.innerHTML='<span class="ar">الجَمْعُ لا يَجوزُ إلا مُثبَتًا</span><br>'+
