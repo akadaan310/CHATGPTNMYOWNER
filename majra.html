@@ -36,7 +36,7 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
 #bar button.t:hover{color:var(--gold)}
 
 /* ---- muṣḥaf canvas ---- */
-#mushaf{padding:14px 20px 70vh; max-width:760px; margin:0 auto; width:100%}
+#mushaf{padding:14px 20px 210px; max-width:760px; margin:0 auto; width:100%}
 .v{position:relative; display:grid; grid-template-columns:30px 1fr; gap:0 14px;
   padding:14px 0 15px; border-bottom:1px solid var(--line2); cursor:pointer;
   transition:background .16s}
@@ -46,6 +46,11 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
 .v .t{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif;
   direction:rtl; font-size:clamp(23px,5.2vw,29px); line-height:2.35; color:var(--tx);
   word-spacing:.02em}
+/* Every token is live, and none of them says so until touched. */
+.w{cursor:pointer; transition:color .14s, text-shadow .14s;
+  -webkit-tap-highlight-color:transparent}
+@media (hover:hover){ .w:hover{color:var(--gold)} }
+.w.on{color:var(--gold); text-shadow:0 0 18px #C6A66455}
 .v[aria-current="true"]{background:#C6A6640D}
 .v[aria-current="true"] .n{color:var(--gold)}
 .v[aria-current="true"]::before{content:''; position:absolute; inset-inline-start:-20px;
@@ -66,11 +71,14 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
 #panel{background:var(--sheet); border-inline-start:1px solid var(--line);
   display:flex; flex-direction:column}
 @media (max-width:939px){
-  #panel{position:fixed; inset:auto 0 0 0; z-index:30; max-height:62vh;
+  #panel{position:fixed; inset:auto 0 0 0; z-index:30; height:62vh;
     border-inline-start:none; border-top:1px solid var(--line);
     box-shadow:0 -30px 70px #000000cc; transform:translateY(101%);
     transition:transform .34s cubic-bezier(.32,.72,0,1)}
-  #panel.open{transform:none}
+  /* peek keeps the anchor and controls in reach while leaving the canvas open */
+  #panel.open{transform:translateY(calc(62vh - 186px))}
+  #panel.full{transform:none}
+  #grip{cursor:pointer}
   #grip{height:26px; flex:none; display:flex; align-items:center; justify-content:center}
   #grip::before{content:''; width:34px; height:3px; border-radius:2px; background:var(--line)}
 }
@@ -99,7 +107,7 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
   font-variant-numeric:tabular-nums; letter-spacing:.04em}
 .step .t{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif;
   direction:rtl; font-size:21px; line-height:2.1; color:var(--tx); cursor:pointer}
-.step .t:hover{color:var(--gold)}
+.step .ft .c{cursor:pointer} .step .ft .c:hover{text-decoration:underline}
 .step .ft{display:flex; gap:11px; margin-top:5px; align-items:center; flex-wrap:wrap}
 .step .ft .c{font-size:9.5px; color:var(--gold); letter-spacing:.04em}
 .step .ft .e{font-size:9px; color:var(--tx3); letter-spacing:.03em}
@@ -178,6 +186,63 @@ const edgesOf=(s,a)=>D.edges[s+':'+a]||[];
 
 let SURA=1, ANCHOR=null, DEPTH=3, LOCAL=true, TRACE=new Set();
 
+/* ============ قُرْب — a property of the coordinate, not of the word ============
+   The neighbourhood of 30:2 is the same whichever of its words you touch, so it
+   is derived here rather than shipped. Constants mirror the planner exactly. */
+const ADJACENT=7.0, NEAR_BASE=6.5, NEAR_DECAY=0.35, NEAR_SPAN=8,
+      SAME_SURAH=1.0, CROSSING=-6.0, TAJAWUR_W=2.0, CROSS_BAR=14.0;
+function qurb(s0,a0,s1,a1){
+  if(s0!==s1) return [CROSSING,3];
+  const d=Math.abs(a0-a1);
+  if(d<=1) return [ADJACENT,0];
+  if(d<=NEAR_SPAN) return [NEAR_BASE-NEAR_DECAY*d,1];
+  return [SAME_SURAH,2];
+}
+/* the field out of a coordinate. w null → the whole āyah. */
+function fieldOf(s,a,w){
+  const out=[], seen=new Set([s+':'+a]);
+  const push=(ts,ta,bits,sab,ev,ty)=>{
+    const k=ts+':'+ta; if(seen.has(k)) return; 
+    const [q,tier]=qurb(s,a,ts,ta);
+    out.push({to:[ts,ta], bits, score:+(bits+q).toFixed(1), tier, sabab:sab, ev, ty});
+    seen.add(k);
+  };
+  if(w){
+    const row=(D.words[s+':'+a]||{})[w]||[];
+    row.forEach(e=>push(e[0],e[1],e[2],e[3],e[4],e[5]));
+  } else {
+    (D.edges[s+':'+a]||[]).forEach(e=>{
+      if(e[4]===3||e[4]===2||e[5]>=2) push(e[0],e[1],e[3],e[5],e[6],e[7]);
+    });
+  }
+  /* الجِوَار, reconstructed from structure */
+  const n=nAyat(s);
+  for(let d=1;d<=NEAR_SPAN;d++) for(const aa of [a-d,a+d]){
+    if(aa<1||aa>n) continue;
+    push(s,aa, d<=1?TAJAWUR_W:TAJAWUR_W+1.0, d<=1?0:1, d<=1?'الآية المجاورة':'±'+d+' آية', 0);
+  }
+  return out.filter(e=>e.score>=8.0).sort((x,y)=>y.score-x.score);
+}
+
+/* ============ the walk, produced live from wherever the reader stands ============ */
+function walk(s0,a0,w0,depth,localFirst){
+  const spent=new Set([s0+':'+a0]);
+  const out=[]; let cur=[s0,a0,w0], lastCross=-99;
+  for(let k=0;k<depth;k++){
+    const allow=(k>=(localFirst?2:0)) && (k-lastCross>=4);
+    const field=fieldOf(cur[0],cur[1],cur[2]).filter(e=>!spent.has(e.to[0]+':'+e.to[1]));
+    if(!field.length) break;
+    const locals=field.filter(e=>e.tier!==3);
+    const cross =field.filter(e=>e.tier===3 && e.bits>=CROSS_BAR);
+    let pick = (allow && cross.length) ? cross[0] : (locals[0]||field[0]);
+    if(pick.tier===3) lastCross=k;
+    spent.add(pick.to[0]+':'+pick.to[1]);
+    out.push(Object.assign({from:cur.slice(0,2)},pick));
+    cur=[pick.to[0],pick.to[1],null];
+  }
+  return out;
+}
+
 /* ============ the muṣḥaf canvas ============ */
 function renderSurah(s, focus){
   SURA=s; const [ar,en]=D.names[s-1];
@@ -191,23 +256,42 @@ function renderSurah(s, focus){
   for(let a=1;a<=nAyat(s);a++){
     const v=el('div','v'); v.dataset.a=a; v.id='v'+s+'_'+a;
     v.appendChild(el('div','n', a));
-    v.appendChild(el('div','t', T(s,a)));
+    const tx=el('div','t');
+    T(s,a).replace(/۞/g,'').split(/\s+/).filter(Boolean).forEach((word,i)=>{
+      if(i) tx.appendChild(document.createTextNode(' '));
+      const sp=el('span','w', word); sp.dataset.w=i+1; tx.appendChild(sp);
+    });
+    v.appendChild(tx);
     v.appendChild(el('div','k','مَحْمِل'));
     v.setAttribute('role','button'); v.tabIndex=0;
-    v.onclick=()=>lock(s,a);
-    v.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); lock(s,a); } };
     m.appendChild(v);
   }
   paint();
   if(focus) jump(s,focus,false);
 }
+/* one listener for the whole canvas — a word if one was hit, else the āyah */
+$('#mushaf').addEventListener('click', ev=>{
+  const w = ev.target.closest('.w');
+  const v = ev.target.closest('.v');
+  if(!v) return;
+  lock(SURA, +v.dataset.a, w ? +w.dataset.w : null);
+});
+$('#mushaf').addEventListener('keydown', ev=>{
+  if(ev.key!=='Enter' && ev.key!==' ') return;
+  const v = ev.target.closest('.v'); if(!v) return;
+  ev.preventDefault(); lock(SURA, +v.dataset.a, null);
+});
 function paint(){
   document.querySelectorAll('.v').forEach(v=>{
     const a=+v.dataset.a;
-    v.removeAttribute('aria-current'); v.classList.remove('trace','dim');
-    if(ANCHOR && ANCHOR[0]===SURA && ANCHOR[1]===a) v.setAttribute('aria-current','true');
-    else if(TRACE.has(SURA+':'+a)) v.classList.add('trace');
-    else if(ANCHOR) v.classList.add('dim');
+    const isAnchor = ANCHOR && ANCHOR[0]===SURA && ANCHOR[1]===a;
+    v.removeAttribute('aria-current');
+    v.classList.remove('trace','dim');
+    if(isAnchor)                          v.setAttribute('aria-current','true');
+    else if(TRACE.has(SURA+':'+a))        v.classList.add('trace');
+    else if(ANCHOR)                       v.classList.add('dim');
+    v.querySelectorAll('.w').forEach(x=>
+      x.classList.toggle('on', isAnchor && ANCHOR[2] && +x.dataset.w===ANCHOR[2]));
   });
 }
 function jump(s,a,smooth){
@@ -216,43 +300,19 @@ function jump(s,a,smooth){
   if(t) t.scrollIntoView({block:'center', behavior:smooth&&!matchMedia('(prefers-reduced-motion:reduce)').matches?'smooth':'auto'});
 }
 
-/* ============ the walk — produced live from wherever the reader stands ============
-   جاذبية الجوار is enforced here exactly as in the planner: the neighbourhood is
-   consumed before it is left, a crossing must clear the bar, and after one the
-   walk re-grounds before another is permitted. */
-function walk(s0,a0,depth,localFirst){
-  const spent=new Set([s0+':'+a0]);
-  const out=[]; let cur=[s0,a0], lastCross=-99;
-  for(let k=0;k<depth;k++){
-    const allow = (k>=(localFirst?2:0)) && (k-lastCross>=4);
-    const field = edgesOf(cur[0],cur[1]).filter(e=>!spent.has(e[0]+':'+e[1]));
-    if(!field.length) break;
-    const locals = field.filter(e=>e[4]!==CROSS);
-    const crosses= field.filter(e=>e[4]===CROSS && e[3]>=14);
-    let pick = locals[0];
-    if(allow && crosses.length) pick = crosses[0];
-    if(!pick) pick = field[0];
-    if(pick[4]===CROSS) lastCross=k;
-    spent.add(pick[0]+':'+pick[1]);
-    out.push({from:cur.slice(), to:[pick[0],pick[1]], score:pick[2], bits:pick[3],
-              tier:pick[4], sabab:pick[5], ev:pick[6], ty:pick[7]});
-    cur=[pick[0],pick[1]];
-  }
-  return out;
-}
-
 /* ============ the scroll panel ============ */
-function lock(s,a){
-  ANCHOR=[s,a];
-  $('#acit').textContent=s+':'+a;
-  $('#atext').textContent=T(s,a);
+function lock(s,a,w){
+  ANCHOR=[s,a,w||null];
+  const wds=T(s,a).replace(/۞/g,'').split(/\s+/).filter(Boolean);
+  $('#acit').textContent = s+':'+a+(w?':'+w:'');
+  $('#atext').textContent = w ? (wds[w-1]||T(s,a)) : T(s,a);
   produce();
   $('#panel').classList.add('open');
   paint();
 }
 function produce(){
   if(!ANCHOR) return;
-  const steps=walk(ANCHOR[0],ANCHOR[1],DEPTH,LOCAL);
+  const steps=walk(ANCHOR[0],ANCHOR[1],ANCHOR[2],DEPTH,LOCAL);
   TRACE=new Set(steps.map(x=>x.to[0]+':'+x.to[1]));
   const sc=$('#scroll'); sc.textContent='';
   if(!steps.length){
@@ -269,12 +329,22 @@ function produce(){
     hd.appendChild(el('span','lbl', 'رتلة '+(i+1)));
     hd.appendChild(el('span','sc', x.score.toFixed(1)+' ← '+x.bits.toFixed(1)+'w'));
     st.appendChild(hd);
-    const t=el('div','t q', T(x.to[0],x.to[1]));
-    t.setAttribute('role','button'); t.tabIndex=0;
-    t.onclick=()=>{ jump(x.to[0],x.to[1],true); if(innerWidth<940) $('#panel').classList.remove('open'); };
+    const t=el('div','t q');
+    T(x.to[0],x.to[1]).replace(/۞/g,'').split(/\s+/).filter(Boolean).forEach((word,i)=>{
+      if(i) t.appendChild(document.createTextNode(' '));
+      const sp=el('span','w', word); sp.dataset.w=i+1; t.appendChild(sp);
+    });
+    t.onclick=ev=>{
+      const hit=ev.target.closest('.w');
+      jump(x.to[0],x.to[1],true);                 // track the canvas
+      lock(x.to[0],x.to[1],hit?+hit.dataset.w:null);   // and become the new مَحْمِل
+      $('#panel').classList.remove('full');
+    };
     st.appendChild(t);
     const ft=el('div','ft');
-    ft.appendChild(el('span','c', x.to[0]+':'+x.to[1]));
+    const c=el('button','c', x.to[0]+':'+x.to[1]);
+    c.onclick=()=>{ jump(x.to[0],x.to[1],true); lock(x.to[0],x.to[1],null); };
+    ft.appendChild(c);
     ft.appendChild(el('span','e', SABAB[x.sabab]));
     ft.appendChild(el('span','e', x.ev));
     if(x.ty===1) ft.appendChild(el('span','e','إدراكي'));
@@ -293,8 +363,13 @@ $('#d6').onclick=function(){depth(6,this)};
 $('#d10').onclick=function(){depth(10,this)};
 $('#loc').onclick=function(){ LOCAL=!LOCAL;
   this.setAttribute('aria-pressed',LOCAL); produce(); };
+$('#grip').onclick=()=>$('#panel').classList.toggle('full');
+let lastY=0;
+addEventListener('scroll',()=>{                 // reading collapses the sheet to peek
+  if(Math.abs(scrollY-lastY)>40){ $('#panel').classList.remove('full'); lastY=scrollY; }
+},{passive:true});
 $('#clear').onclick=()=>{ ANCHOR=null; TRACE=new Set();
-  $('#panel').classList.remove('open'); $('#scroll').textContent='';
+  $('#panel').classList.remove('open','full'); $('#scroll').textContent='';
   $('#acit').textContent=''; $('#atext').textContent=''; paint(); };
 
 const idx=$('#idx');
@@ -313,7 +388,7 @@ addEventListener('keydown',e=>{ if(e.key==='Escape'){ idx.classList.remove('on')
 
 /* open on al-Rūm with its opening already locked, so the instrument is at work */
 renderSurah(30);
-lock(30,2);
+lock(30,2,null);
 setTimeout(()=>scrollTo(0,0),0);
 })();
 </script>
