@@ -1,0 +1,552 @@
+<title>مَجْرَاهَا وَمُرْسَاهَا</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#EBE5D8; --panel:#F2EDE3; --sunk:#E1D9C8;
+  --edge:#D3C9B4; --edge2:#DFD7C6;
+  --ink:#1B1710; --ink2:#5A5142; --ink3:#8B8172;
+  --brass:#8A6D24; --brass2:#B08F3C;
+  --nassi:#14606D; --nassi-bg:#14606D14;
+  --manqul:#5B4A8A; --manqul-bg:#5B4A8A14;
+  --idraki:#9A6014; --idraki-bg:#9A601414;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#13100A; --panel:#1B1710; --sunk:#0D0B07;
+    --edge:#2E281D; --edge2:#221D15;
+    --ink:#EFE8DA; --ink2:#A79C88; --ink3:#756B5A;
+    --brass:#C9A85C; --brass2:#E0C07A;
+    --nassi:#5FC0CD; --nassi-bg:#5FC0CD1A;
+    --manqul:#A896D8; --manqul-bg:#A896D81A;
+    --idraki:#DCA85C; --idraki-bg:#DCA85C1A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13100A; --panel:#1B1710; --sunk:#0D0B07;
+  --edge:#2E281D; --edge2:#221D15;
+  --ink:#EFE8DA; --ink2:#A79C88; --ink3:#756B5A;
+  --brass:#C9A85C; --brass2:#E0C07A;
+  --nassi:#5FC0CD; --nassi-bg:#5FC0CD1A;
+  --manqul:#A896D8; --manqul-bg:#A896D81A;
+  --idraki:#DCA85C; --idraki-bg:#DCA85C1A;
+}
+*{box-sizing:border-box}
+.meta>*,.st>*,.cit,.row>*{unicode-bidi:isolate}
+body{margin:0; background:var(--bg); color:var(--ink);
+  font-family:Spectral,Georgia,serif; font-weight:300; font-size:16.5px; line-height:1.62;
+  -webkit-font-smoothing:antialiased}
+.ar{font-family:Amiri,"Noto Naskh Arabic",serif; direction:rtl}
+.q{font-family:"Amiri Quran",Amiri,serif; direction:rtl; line-height:1.95}
+.mono,code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.85em}
+.wrap{max-width:1040px; margin:0 auto; padding:0 20px}
+.col{max-width:70ch}
+
+header{border-bottom:1px solid var(--edge); padding-block:56px 34px; margin-bottom:46px}
+.eyebrow{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--brass); margin:0 0 24px}
+h1{font-family:Amiri,serif; font-size:clamp(38px,8vw,64px); font-weight:700; line-height:1.2;
+  margin:0; direction:rtl; text-wrap:balance}
+.sub{font-size:clamp(16px,2.5vw,19px); color:var(--ink2); margin:16px 0 0; max-width:58ch;
+  font-style:italic}
+
+section{margin-bottom:54px}
+.shead{display:flex; align-items:baseline; gap:13px; flex-wrap:wrap;
+  border-bottom:1px solid var(--edge2); padding-bottom:9px; margin-bottom:22px}
+.snum{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--brass); flex:none}
+h2{font-family:Amiri,serif; font-size:clamp(23px,4.4vw,30px); font-weight:700; margin:0;
+  direction:rtl; line-height:1.4}
+.h2en{font-size:14px; color:var(--ink3); font-style:italic; margin:0}
+h3{font-size:18px; font-weight:600; margin:30px 0 10px; letter-spacing:-.01em}
+p{margin:0 0 15px}
+
+.quote{background:var(--panel); border:1px solid var(--edge);
+  border-inline-start:3px solid var(--brass); padding:22px 24px; margin:24px 0}
+.quote .q{font-size:23px; display:block; margin-bottom:14px}
+.quote .en{font-size:15px; color:var(--ink2); font-style:italic; margin:0;
+  border-top:1px solid var(--edge2); padding-top:13px}
+
+/* ---- change callouts ---- */
+.chg{border:1px solid var(--edge); background:var(--panel); padding:20px 22px; margin:20px 0}
+.chg .tag{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--idraki); display:block; margin-bottom:9px}
+.chg h4{margin:0 0 9px; font-size:17px; font-weight:600}
+.chg p{margin:0 0 11px; font-size:15.5px; color:var(--ink2)}
+.chg p:last-child{margin-bottom:0}
+
+/* ---- state machine ---- */
+.fsm{margin:26px 0; border-inline-start:2px solid var(--edge); padding-inline-start:0}
+.st{display:grid; grid-template-columns:150px 1fr; gap:0 18px; position:relative;
+  padding:0 0 22px 0}
+.st::before{content:''; position:absolute; inset-inline-start:-7px; top:6px; width:12px; height:12px;
+  background:var(--bg); border:2px solid var(--brass); border-radius:50%}
+.st.auto::before{background:var(--brass)}
+.st .k{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.1em;
+  color:var(--brass); padding-inline-start:20px; padding-top:2px}
+.st .b{min-width:0}
+.st .n{font-family:Amiri,serif; font-size:22px; direction:rtl; margin-bottom:2px; line-height:1.5}
+.st .d{font-size:15px; color:var(--ink2)}
+.st .x{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink3); margin-top:7px;
+  display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.st .x b{color:var(--nassi); font-weight:500}
+@media (max-width:620px){
+  .st{grid-template-columns:1fr; gap:4px}
+  .st .k{padding-inline-start:20px}
+  .st .b{padding-inline-start:20px}
+}
+
+/* ---- tables ---- */
+.tw{overflow-x:auto; margin:22px 0; border:1px solid var(--edge2)}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:460px}
+th{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink3); text-align:left; font-weight:500;
+  padding:10px 14px; border-bottom:1px solid var(--edge); white-space:nowrap}
+td{padding:10px 14px; border-bottom:1px solid var(--edge2); vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.ar{font-family:Amiri,serif; font-size:17px; direction:rtl; text-align:right; white-space:nowrap}
+td.qq{font-family:"Amiri Quran",Amiri,serif; font-size:18px; direction:rtl; text-align:right}
+td.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; text-align:right;
+  white-space:nowrap}
+.band{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.06em;
+  padding:2px 7px; border-radius:2px; white-space:nowrap}
+.b-n{background:var(--nassi-bg); color:var(--nassi)}
+.b-m{background:var(--manqul-bg); color:var(--manqul)}
+.b-w{background:var(--idraki-bg); color:var(--idraki)}
+
+/* ---- components ---- */
+.comps{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1px;
+  background:var(--edge2); border:1px solid var(--edge2); margin:22px 0}
+.cp{background:var(--bg); padding:17px}
+.cp .n{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--ink);
+  font-weight:500; margin-bottom:3px}
+.cp .a{font-family:Amiri,serif; font-size:17px; direction:rtl; color:var(--brass);
+  margin-bottom:8px}
+.cp .d{font-size:14px; color:var(--ink2); line-height:1.5}
+
+pre{background:var(--sunk); border:1px solid var(--edge2); padding:16px 18px; overflow-x:auto;
+  margin:20px 0; font-size:12.5px; line-height:1.7; font-family:"IBM Plex Mono",monospace;
+  color:var(--ink2)}
+pre b{color:var(--ink); font-weight:500}
+pre .c{color:var(--ink3)}
+pre .t{color:var(--nassi)}
+
+.beat{display:grid; grid-template-columns:44px 1fr; gap:0 16px; padding:0 0 16px}
+.beat .t{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--brass);
+  font-variant-numeric:tabular-nums; padding-top:3px}
+.beat .d{font-size:15px; color:var(--ink2)}
+.beat .d b{color:var(--ink); font-weight:600}
+
+.warn{border:1px solid var(--idraki); background:var(--idraki-bg); padding:19px 21px; margin:22px 0}
+.warn .tag{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--idraki); display:block; margin-bottom:9px}
+.warn p{margin:0 0 11px; font-size:15.5px}
+.warn p:last-child{margin-bottom:0}
+
+.note{font-size:14px; color:var(--ink3); border-top:1px solid var(--edge2);
+  padding-top:13px; margin-top:24px}
+footer{border-top:1px solid var(--edge); margin-top:64px; padding-block:28px 64px;
+  font-size:13px; color:var(--ink3)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">المِرْتَال · Onboarding Architecture · Proposal</p>
+  <h1>مَجْرَاهَا وَمُرْسَاهَا</h1>
+  <p class="sub">The first ninety seconds: a state machine, a component tree, and an audio
+  architecture for the assembly of a first scroll.</p>
+</header>
+
+<div class="col">
+
+<section>
+  <div class="shead"><span class="snum">٠</span><h2>الصُّلْب</h2><p class="h2en">The spine</p></div>
+
+  <p>The onboarding did not need a metaphor invented for it. Seeded on
+  <span class="q">بِسْمِ ٱللَّهِ</span>, the instrument's own strongest branch — a two-word formula
+  occurring in exactly three places, <b>14.7 bits</b> — lands here:</p>
+
+  <div class="quote">
+    <span class="q">وَقَالَ ٱرْكَبُوا۟ فِيهَا بِسْمِ ٱللَّهِ مَجْر۪ىٰهَا وَمُرْسَىٰهَآ</span>
+    <p class="en">“Ride in it — in the name of God is its course and its mooring.” · 11:41</p>
+  </div>
+
+  <p>مَجْرَاهَا is the word the reading surface was already named after. مُرْسَاهَا — its mooring,
+  its anchorage — is the seal. The arc of this flow is therefore given by the text it opens with:
+  <b>the user boards, moves through a course, and comes to a mooring that is theirs.</b> Every
+  name below is drawn from that verse rather than from product vocabulary.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">١</span><h2>ثَلَاثُ تَغْيِيرَات</h2>
+    <p class="h2en">Three changes I would make first</p></div>
+
+  <div class="chg">
+    <span class="tag">Change 01 · ordering</span>
+    <h4>The Basmalah comes before the addressal, not after</h4>
+    <p>Asking a cold user to choose between <span class="ar">يَا أَيُّهَا النَّبِي</span> and
+    <span class="ar">بَنِي آدَم</span> in the first five seconds asks for an ontological commitment
+    before they know what the commitment <i>does</i>. Most will bounce or tap at random, and a random
+    tap poisons the personalisation it was meant to seed.</p>
+    <p>Run the auto-driven Basmalah first — twenty-five seconds, no friction, no choices. <i>Then</i>
+    ask. By then the question has meaning: they have watched paths branch and can see what a lens
+    would change.</p>
+    <p>This is also the textual order. The Basmalah precedes every addressal in the muṣḥaf.
+    <span class="ar">بِسْمِ ٱللَّهِ</span> comes before <span class="ar">يَا أَيُّهَا ٱلنَّاس</span> —
+    always, without exception.</p>
+  </div>
+
+  <div class="chg">
+    <span class="tag">Change 02 · framing</span>
+    <h4>It is a facing, not an identity</h4>
+    <p>A user selecting <span class="ar">يَا مُوسَى</span> is not claiming to be Mūsā, and a list that
+    reads as “choose who you are” will make thoughtful users uncomfortable and careless users
+    presumptuous. Reframe the whole gate as <b><span class="ar">الوِجْهَة</span></b> — the facing one
+    turns toward — on its own Qur'anic warrant:</p>
+    <div class="quote" style="margin:14px 0">
+      <span class="q" style="font-size:21px">وَلِكُلٍّ وِجْهَةٌ هُوَ مُوَلِّيهَا</span>
+      <p class="en">“And for each there is a facing toward which he turns.” · 2:148</p>
+    </div>
+    <p>The copy becomes <i>“which addressal are you entering through?”</i> — a direction of approach,
+    revisable at any time from settings. Nothing is claimed. Nothing is fixed.</p>
+  </div>
+
+  <div class="chg">
+    <span class="tag">Change 03 · the wow itself</span>
+    <h4>Open on the familiar, then break it</h4>
+    <p>A demonstration that begins in motion has nothing to be surprising <i>against</i>. Open on
+    <span class="q">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</span> exactly as every person who has
+    ever seen it has seen it: one still line, embossed, silent, at rest.</p>
+    <p>Hold it long enough to be certain. Then let it come apart.</p>
+    <p>The wow is not the animation. The wow is that <b>the most familiar line in the world is doing
+    something no one has seen it do</b> — and that it turns out to have been a set of coordinates the
+    whole time.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٢</span><h2>آلَةُ الحَالَات</h2>
+    <p class="h2en">The state machine</p></div>
+
+  <p>Nine states. Four run themselves; five wait on the user. Every state is interruptible, and every
+  state before <code>WIJHA</code> can be skipped straight to it.</p>
+
+  <div class="fsm">
+    <div class="st auto"><div class="k">SUKŪN</div><div class="b">
+      <div class="n">سُكُون</div>
+      <div class="d">The still Basmalah, embossed, at rest. No motion, no sound, no chrome.
+      A single line: <i>touch to begin</i>.</div>
+      <div class="x">auto · 2.5s hold → <b>on first touch</b> · unlocks the audio context</div>
+    </div></div>
+
+    <div class="st auto"><div class="k">INFIṢĀL</div><div class="b">
+      <div class="n">انْفِصَال</div>
+      <div class="d">The line fractures. Word boundaries separate, the four words drift a few
+      degrees apart, and the constellation field ignites beneath the vellum — nodes appearing
+      <i>on</i> the words, not around them.</div>
+      <div class="x">auto · 2s → <b>INJIRĀʾ</b></div>
+    </div></div>
+
+    <div class="st auto"><div class="k">INJIRĀʾ</div><div class="b">
+      <div class="n">انْجِرَاء</div>
+      <div class="d">The auto-driven course. Four رتلات trace themselves in sequence. At each one
+      the instrument visibly <i>considers</i> its options — two or three candidate paths flicker up,
+      one brightens and wins, the rest fade. The user does nothing and sees everything.</div>
+      <div class="x">auto · ~22s · pausable · <b>skip → WIJHA</b></div>
+    </div></div>
+
+    <div class="st"><div class="k">WIJHA</div><div class="b">
+      <div class="n">الوِجْهَة</div>
+      <div class="d">Thirteen addressals as cards, each showing its real breadth. Selection seeds
+      the frontier. Revisable forever.</div>
+      <div class="x">waits · required · <b>→ MĪQĀT</b></div>
+    </div></div>
+
+    <div class="st auto"><div class="k">MĪQĀT</div><div class="b">
+      <div class="n">مِيقَات · الٓمٓ</div>
+      <div class="d">The calibration. الٓمٓ arrives scattered, locks into one body, and is shown
+      docking against six continuations and one crossing. Beat sheet in §5.</div>
+      <div class="x">auto · ~30s · <b>skip → TARKĪB</b></div>
+    </div></div>
+
+    <div class="st"><div class="k">TARKĪB</div><div class="b">
+      <div class="n">تَرْكِيب</div>
+      <div class="d">The user assembles their own Basmalah scroll. Four رتلات; at each, the real
+      branch options are offered and one is chosen. Swappable until sealed.</div>
+      <div class="x">waits · 4 steps · back/forward · <b>→ MURSĀ</b> when all four are set</div>
+    </div></div>
+
+    <div class="st"><div class="k">MURSĀ</div><div class="b">
+      <div class="n">المُرْسَى</div>
+      <div class="d">Review before sealing. The whole scroll rolls into view at once with its
+      total weight in bits, its فرقان count, and its وِجْهَة.</div>
+      <div class="x">waits · <b>→ KHATM</b> or back to TARKĪB</div>
+    </div></div>
+
+    <div class="st auto"><div class="k">KHATM</div><div class="b">
+      <div class="n">الخَتْم</div>
+      <div class="d">The seal. A brass signet presses into the vellum and leaves a debossed
+      impression carrying the composition's fingerprint. The one moment in the flow with weight,
+      pressure and a low sound.</div>
+      <div class="x">auto · 1.8s · irreversible by design · <b>→ MAJRĀ</b></div>
+    </div></div>
+
+    <div class="st"><div class="k">MAJRĀ</div><div class="b">
+      <div class="n">المَجْرَى</div>
+      <div class="d">The dashboard, with the sealed scroll as its root entry. Not a congratulations
+      screen — the instrument, now theirs, opened at their own composition.</div>
+      <div class="x">terminal</div>
+    </div></div>
+  </div>
+
+  <pre><b>transitions</b>
+  SUKŪN   --touch--------------→ INFIṢĀL      <span class="c">side effect: AudioBus.unlock()</span>
+  INFIṢĀL --timer(2000)---------→ INJIRĀʾ
+  INJIRĀʾ --complete | skip-----→ WIJHA
+  WIJHA   --select(wijha)-------→ MĪQĀT       <span class="c">side effect: Frontier.seed(wijha)</span>
+  MĪQĀT   --complete | skip-----→ TARKĪB
+  TARKĪB  --commit(4 of 4)------→ MURSĀ
+  MURSĀ   --back----------------→ TARKĪB
+  MURSĀ   --seal----------------→ KHATM       <span class="c">guard: all four رتلات resolved</span>
+  KHATM   --timer(1800)---------→ MAJRĀ       <span class="c">side effect: Scroll.persist()</span>
+
+<b>global</b>
+  any --pause--→ held        <span class="c">auto states only; resumes in place</span>
+  any --replay-→ SUKŪN       <span class="c">from settings, never destructive</span>
+  INJIRĀʾ|MĪQĀT --skip--→ next waiting state</pre>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٣</span><h2>الوِجْهَة</h2>
+    <p class="h2en">The facing — and how to make it real</p></div>
+
+  <p>The gate is decoration unless the choice changes something measurable. It should do exactly
+  what the formalism already supports: <b>seed the frontier</b>. Each addressal resolves to its
+  lemma occurrences, and those become E₀ — the established set every later فرقان expands from.</p>
+
+  <p>These are not equivalent instruments, and the difference is large. Measured:</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>وِجْهَة</th><th class="num">seed</th><th class="num">bits</th>
+      <th class="num">sūrahs</th><th>character</th></tr></thead>
+    <tbody>
+      <tr><td class="ar">يَا يَحْيَى</td><td class="num">5</td><td class="num">13.9</td><td class="num">4</td><td><span class="band b-n">narrow · deep</span></td></tr>
+      <tr><td class="ar">يَا زَكَرِيَّا</td><td class="num">7</td><td class="num">13.4</td><td class="num">4</td><td><span class="band b-n">narrow · deep</span></td></tr>
+      <tr><td class="ar">يَا دَاوُودُ</td><td class="num">16</td><td class="num">12.2</td><td class="num">9</td><td><span class="band b-n">narrow · deep</span></td></tr>
+      <tr><td class="ar">بَنِي آدَم</td><td class="num">25</td><td class="num">11.6</td><td class="num">9</td><td><span class="band b-n">narrow · deep</span></td></tr>
+      <tr><td class="ar">يَا عِيسَى ابْنَ مَرْيَم</td><td class="num">25</td><td class="num">11.6</td><td class="num">11</td><td><span class="band b-n">narrow · deep</span></td></tr>
+      <tr><td class="ar">يَا مَرْيَم</td><td class="num">34</td><td class="num">11.2</td><td class="num">12</td><td><span class="band b-m">middle</span></td></tr>
+      <tr><td class="ar">الإِنْسَان</td><td class="num">71</td><td class="num">10.1</td><td class="num">46</td><td><span class="band b-m">middle</span></td></tr>
+      <tr><td class="ar">يَا أَيُّهَا النَّبِي</td><td class="num">75</td><td class="num">10.0</td><td class="num">20</td><td><span class="band b-m">middle</span></td></tr>
+      <tr><td class="ar">يَا مُوسَى</td><td class="num">136</td><td class="num">9.2</td><td class="num">34</td><td><span class="band b-m">middle</span></td></tr>
+      <tr><td class="ar">يَا أَيُّهَا النَّاس</td><td class="num">241</td><td class="num">8.3</td><td class="num">53</td><td><span class="band b-w">wide · shallow</span></td></tr>
+      <tr><td class="ar">يَا أَيُّهَا الرُّسُل</td><td class="num">332</td><td class="num">7.9</td><td class="num">61</td><td><span class="band b-w">wide · shallow</span></td></tr>
+      <tr><td class="ar">يَا أَيُّهَا الَّذِينَ آمَنُوا</td><td class="num">537</td><td class="num">7.2</td><td class="num">73</td><td><span class="band b-w">wide · shallow</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Show this on the cards. A narrow facing gives a tight, rare, high-information instrument that
+  reaches few places with great specificity; a wide one gives a broad, shallow instrument that
+  touches most of the muṣḥaf. Neither is better, and saying so on the card is what stops the list
+  from reading as a ranking of worth.</p>
+
+  <p>The thirteenth option — <span class="ar">مُسْلِمًا مُؤْمِنًا حَنِيفًا بِوَعْيٍ أَنَّ جَمِيعَ
+  الخَلْقِ يَسْجُدُ لِلَّه</span> — is not an addressal but a declared state, and it should not sit
+  in the same list as the twelve. Give it its own position above them as the <b>default</b>, seeded
+  on <span class="ar">سَجَدَ</span> + <span class="ar">خَلْق</span> (87 occurrences, 9.8 bits, 41
+  sūrahs). Anyone who taps through without deciding lands there, which is the right place to land.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٤</span><h2>مَادَّةُ الانْجِرَاء</h2>
+    <p class="h2en">What the auto-driven course actually plays</p></div>
+
+  <p>These are the real branches, computed, not invented. Four رتلات, each with its true option set
+  above the 8-bit threshold:</p>
+
+  <div class="tw"><table>
+    <thead><tr><th class="num">رتلة</th><th>node</th><th class="num">options</th><th>reaches</th><th class="num">bits</th></tr></thead>
+    <tbody>
+      <tr><td class="num">١</td><td class="qq">بِسْمِ</td><td class="num">3</td><td class="mono">1:1 · 11:41 · 27:30</td><td class="num">14.7</td></tr>
+      <tr><td class="num">٢</td><td class="qq">ٱللَّهِ</td><td class="num">2</td><td class="mono">1:1 · 27:30</td><td class="num">15.2</td></tr>
+      <tr><td class="num">٣</td><td class="qq">ٱلرَّحْمَٰنِ</td><td class="num">5</td><td class="mono">1:3 · 2:163 · 27:30 · 41:2 · 59:22</td><td class="num">13.9</td></tr>
+      <tr><td class="num">٤</td><td class="qq">ٱلرَّحِيمِ</td><td class="num">—</td><td class="mono">closes · returns to anchor</td><td class="num">—</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Ten distinct compositions come out of that, which is enough that two users comparing scrolls
+  will have different ones — the minimum bar for the assembly to feel like authorship rather than a
+  quiz with a single answer.</p>
+
+  <div class="warn">
+    <span class="tag">Generator defect this surfaced</span>
+    <p>The branch generator prefers the <i>longest</i> matching formula and stops there. Seeded on
+    <span class="ar">بِسْمِ</span> it found the 3-gram
+    <span class="ar">بسم الله الرحمن</span> (2 places) and never offered the 2-gram
+    <span class="ar">بسم الله</span> (3 places) — so it missed <b>11:41</b>, the single most
+    interesting destination in the entire Basmalah, and the verse this whole flow is named after.</p>
+    <p>A narrower formula reaches <i>more</i> places, and that is frequently the better move.
+    <code>sigha()</code> must return the union across all widths with each candidate carrying its own
+    weight, instead of breaking at the first width that matches.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٥</span><h2>مِيقَاتُ الٓمٓ</h2>
+    <p class="h2en">The calibration — beat sheet</p></div>
+
+  <p>The instruction was that الٓمٓ must move as one coherent body rather than three letters. That is
+  right, and the demystification lands only if the sequence <i>argues</i> rather than asserts.</p>
+
+  <div class="beat"><div class="t">0.0s</div><div class="d">Three glyphs — <b>ا ل م</b> — drift in
+    separately, apart, unjoined, each faintly haloed. This is how the world holds them: three
+    mysterious letters.</div></div>
+  <div class="beat"><div class="t">2.5s</div><div class="d">They converge and <b>lock</b>. A single
+    low click. From this instant they share one bounding body, one halo, one shadow, and they never
+    separate again for the rest of the app.</div></div>
+  <div class="beat"><div class="t">4.0s</div><div class="d">The locked body travels and <b>docks</b>
+    against a continuation: <span class="q">ذَٰلِكَ ٱلْكِتَٰبُ</span>. The citation
+    <span class="mono">2:1 → 2:2</span> resolves beneath it.</div></div>
+  <div class="beat"><div class="t">6–16s</div><div class="d">It undocks and docks <b>five more
+    times</b>, once per remaining sūrah — 3, 29, 30, 31, 32 — each continuation different, each
+    citation resolving. Same body. Six destinations.</div></div>
+  <div class="beat"><div class="t">17s</div><div class="d">All six hold on screen at once, and the
+    line lands: <b>it is not a secret — it is an address, and it is used six times.</b></div></div>
+  <div class="beat"><div class="t">21s</div><div class="d"><span class="q">الٓرٰ</span> enters from
+    the opposite edge as a second locked body. The two approach and <b>merge</b> into
+    <span class="q">الٓمٓرٰ</span> — which docks on 13, al-Raʿd.</div></div>
+  <div class="beat"><div class="t">26s</div><div class="d">The closing statement: of the
+    <b>91 possible pairs</b> of letter-clusters, exactly <b>two</b> unions are themselves attested in
+    the muṣḥaf. The user has just watched one. The other — <span class="q">الٓمٓصٓ</span> at
+    al-Aʿrāf — is left on screen, unvisited, as the first thing the instrument invites them to go
+    find.</div></div>
+
+  <p style="margin-top:22px">That last beat is the one I would protect above all others. The
+  onboarding ends by handing the user an open question rather than a completed lesson.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٦</span><h2>المُكَوِّنَات</h2>
+    <p class="h2en">Component tree</p></div>
+
+  <div class="comps">
+    <div class="cp"><div class="n">&lt;ScrollSurface&gt;</div><div class="a">سَطْحُ الطَّرْس</div>
+      <div class="d">The vellum ground and emboss renderer. Owns lighting angle. Every other visual
+      component is a child, so the raking light stays consistent.</div></div>
+    <div class="cp"><div class="n">&lt;ConstellationField&gt;</div><div class="a">حَقْلُ الكَوَاكِب</div>
+      <div class="d">The backlit star map and the node registry. Maps a موضع to an (x,y) on the
+      current surface — the single source of truth for where a node <i>is</i>.</div></div>
+    <div class="cp"><div class="n">&lt;NodeMarker&gt;</div><div class="a">العُقْدَة</div>
+      <div class="d">One navigational node, anchored on a word. States: dormant · live · active ·
+      spent. Pulse period derives from edge weight, so brighter really does mean heavier.</div></div>
+    <div class="cp"><div class="n">&lt;PathTracer&gt;</div><div class="a">الرَّاسِم</div>
+      <div class="d">Draws a وَصْلَة between two nodes. Curves around embossed strokes rather than
+      crossing them. Exposes progress 0→1 so audio can follow the draw.</div></div>
+    <div class="cp"><div class="n">&lt;GroupedGlyph&gt;</div><div class="a">الحَرْفُ المَجْمُوع</div>
+      <div class="d">The special one. A fawātiḥ cluster as a single rigid body — scatter, lock,
+      dock, merge. Never decomposes after lock.</div></div>
+    <div class="cp"><div class="n">&lt;RetlahLine&gt;</div><div class="a">سَطْرُ الرَّتْلَة</div>
+      <div class="d">A fragment plus its citation. Renders from coordinates only — it never holds
+      text, exactly as the formalism requires.</div></div>
+    <div class="cp"><div class="n">&lt;BranchPicker&gt;</div><div class="a">المُبَدِّل</div>
+      <div class="d">The assembly control. Shows real options with weight and type, swaps in place,
+      and re-traces without resetting the scroll.</div></div>
+    <div class="cp"><div class="n">&lt;SealStamp&gt;</div><div class="a">الخَاتَم</div>
+      <div class="d">The signet press. Produces a debossed impression from the composition's
+      fingerprint — bits, فرقان count, وِجْهَة, date.</div></div>
+    <div class="cp"><div class="n">&lt;TransportBar&gt;</div><div class="a">شَرِيطُ السَّيْر</div>
+      <div class="d">Auto/step, pause, back, progress. Present from INJIRĀʾ onward so the same
+      control governs both the demo and the user's own scroll.</div></div>
+    <div class="cp"><div class="n">AudioBus</div><div class="a">مَجْمَعُ الصَّوْت</div>
+      <div class="d">Three buses, separate gain, separate consent. Never autoplays. §7.</div></div>
+    <div class="cp"><div class="n">Frontier</div><div class="a">الجَبْهَة</div>
+      <div class="d">The established set E and the grounding rule. Seeded by وِجْهَة, grows as
+      coordinates are reached. Not a view concern — pure state.</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٧</span><h2>الصَّوْت</h2>
+    <p class="h2en">Audio — three buses that must never merge</p></div>
+
+  <div class="warn">
+    <span class="tag">The constraint everything else follows from</span>
+    <p>A رتلة is frequently a <b>recombination</b> — spans presented in an order no reciter has ever
+    recited. Splicing a qāriʾ's recording to produce that order would fabricate a recitation that
+    never happened, in that reciter's voice. <b>Do not do it.</b> No crossfade, no time-stretch, no
+    concatenation that hides a seam.</p>
+    <p>The honest form is better anyway: play each cited span as its own utterance, with a real
+    silence between them. <b>That seam is the وَقْف, made audible.</b> The user hears the composition
+    as a sequence of citations — which is precisely what it is.</p>
+  </div>
+
+  <h3>Bus 1 — التِّلَاوَة · recitation</h3>
+  <p>Real qāriʾ audio, word-timed. A contiguous span plays as recorded. A recombined رتلة plays span
+  by span with an unhidden gap. Attribution — reciter, riwāyah — is always visible. Requires
+  word-level timing data; several open sets exist. Default <b>on</b> for the auto course, since
+  hearing it is half the demonstration.</p>
+
+  <h3>Bus 2 — الآلَة · the instrument</h3>
+  <p>The app's own sounds, and they should be <b>material rather than digital</b> — this object is
+  made of hide and brass, and it should sound like it:</p>
+  <div class="tw"><table>
+    <thead><tr><th>event</th><th>sound</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">node.pulse</td><td>a soft struck brass tone, short decay</td></tr>
+      <tr><td class="mono">path.draw</td><td>a fine bowed tone that rises with draw progress</td></tr>
+      <tr><td class="mono">glyph.lock</td><td>a low wooden click — الٓمٓ becoming one body</td></tr>
+      <tr><td class="mono">branch.swap</td><td>parchment shifting against parchment</td></tr>
+      <tr><td class="mono">seal.press</td><td>a dense thud, then a fine wax crackle</td></tr>
+      <tr><td class="mono">scroll.advance</td><td>the roll turning, pitched to scroll velocity</td></tr>
+    </tbody>
+  </table></div>
+
+  <p><b>Sonify the weight.</b> <code>path.draw</code> takes its pitch and brightness from the edge's
+  bits — a 15-bit stitch sounds higher and clearer than a 9-bit one. The instrument would then be
+  telling the ear what the bar chart tells the eye, and after a few minutes a user starts to
+  <i>hear</i> when a connection is strong. This is the single highest-leverage audio idea here.</p>
+
+  <h3>Bus 3 — الأَجْوَاء · ambience</h3>
+  <p>A very low room tone, no melody, no percussion, nothing that could be mistaken for music
+  underneath recitation. Default <b>off</b>, and it stays off while Bus 1 is sounding.</p>
+
+  <h3>Consent and unlock</h3>
+  <p>Browsers require a gesture before audio, and that requirement should be used rather than worked
+  around: <b>the first touch that begins the Basmalah is the unlock</b>. One gesture, no permission
+  dialog, and it reads as a ritual opening rather than a consent prompt. All three buses respect
+  <code>prefers-reduced-motion</code> for their visual partners and carry independent mutes that
+  persist.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٨</span><h2>مَا يَبْقَى مَفْتُوحًا</h2>
+    <p class="h2en">Open gaps</p></div>
+
+  <p><b>Sealing is presented as irreversible but nothing is at stake.</b> If a scroll can be unsealed
+  and re-cut freely, the ceremony is theatre. My proposal: a sealed scroll is immutable, but
+  <i>forking</i> it is one tap — the seal preserves a moment rather than locking a possession, and
+  the dashboard accumulates a lineage.</p>
+
+  <p><b>Return visits.</b> The whole flow is designed for a first-timer. A returning user opening
+  SUKŪN again should get the still Basmalah and nothing else — no re-onboarding, no skip button they
+  have to find. One tap and they are in المَجْرَى.</p>
+
+  <p><b>The وِجْهَة seeds are lemma-only.</b> يا أيها الذين آمنوا resolves to the lemma
+  <span class="ar">آمَنَ</span>, which is the verb, not the vocative construction. That is a coarse
+  approximation and it will occasionally seed oddly. The phrase-level index would be more accurate
+  and is not built.</p>
+
+  <p><b>Nothing here scores whether an assembled scroll is any good.</b> A user can pick four
+  branches that are individually heavy and collectively incoherent, and the instrument will seal it
+  without complaint. That is the same unsolved problem named at the end of the formalism, arriving
+  now in a place where a user will feel it.</p>
+</section>
+
+</div>
+
+<footer>
+  <p>Proposal, draft 1 — for <span class="ar">المِرْتَال</span>. Measurements are computed from the
+  segment-addressable corpus and are reproducible. Every Qur'anic citation renders from its
+  coordinates; nothing in this flow composes text that cannot be cited.</p>
+</footer>
+
+</div>

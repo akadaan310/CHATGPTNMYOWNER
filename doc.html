@@ -1,0 +1,487 @@
+<title>رَتْلًا وَتَرْتِيلًا</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Spectral:ital,wght@0,300;0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#F1F3F5; --raise:#FAFBFC; --ink:#14181F; --ink2:#4E5766; --ink3:#7A8494;
+  --rule:#D5DAE1; --rule2:#E4E8ED;
+  --nassi:#14606D; --nassi-bg:#14606D14;
+  --idraki:#96631C; --idraki-bg:#96631C14;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111419; --raise:#171B22; --ink:#E7EAEE; --ink2:#98A2AF; --ink3:#6B7482;
+    --rule:#252B34; --rule2:#1D222A;
+    --nassi:#5FBECB; --nassi-bg:#5FBECB1A; --idraki:#DBA557; --idraki-bg:#DBA5571A;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111419; --raise:#171B22; --ink:#E7EAEE; --ink2:#98A2AF; --ink3:#6B7482;
+  --rule:#252B34; --rule2:#1D222A;
+  --nassi:#5FBECB; --nassi-bg:#5FBECB1A; --idraki:#DBA557; --idraki-bg:#DBA5571A;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:Spectral,Georgia,serif; font-weight:300; font-size:17px; line-height:1.65;
+  margin:0; padding-block:0; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px}
+.col{max-width:68ch}
+ar,.ar{font-family:Amiri,"Noto Naskh Arabic",serif; font-weight:400; line-height:1.9}
+mono,.mono,code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.84em; font-weight:400}
+
+/* ---------- masthead ---------- */
+header{border-bottom:1px solid var(--rule); padding-block:64px 40px; margin-bottom:56px}
+.eyebrow{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink3); margin:0 0 28px}
+h1{font-family:Amiri,serif; font-size:clamp(44px,9vw,76px); font-weight:700; line-height:1.15;
+  margin:0; text-wrap:balance; direction:rtl}
+.sub-ar{font-family:Amiri,serif; font-size:clamp(19px,3.6vw,25px); color:var(--ink2);
+  direction:rtl; margin:14px 0 0; line-height:1.7}
+.sub-en{font-size:clamp(17px,2.6vw,20px); font-style:italic; color:var(--ink2);
+  margin:20px 0 0; max-width:56ch; text-wrap:balance}
+
+/* ---------- sections ---------- */
+section{margin-bottom:60px}
+.shead{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+  border-bottom:1px solid var(--rule2); padding-bottom:10px; margin-bottom:26px}
+.snum{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--nassi);
+  letter-spacing:.08em; flex:none}
+h2{font-family:Amiri,serif; font-size:clamp(24px,4.6vw,32px); font-weight:700; margin:0;
+  direction:rtl; line-height:1.4}
+.h2en{font-size:15px; color:var(--ink3); font-style:italic; margin:0}
+h3{font-size:19px; font-weight:600; margin:36px 0 12px; letter-spacing:-.01em}
+p{margin:0 0 16px}
+.lede{font-size:19px; color:var(--ink2)}
+
+/* ---------- axiom ---------- */
+.axiom{background:var(--raise); border:1px solid var(--rule);
+  border-inline-start:3px solid var(--nassi); padding:26px 28px; margin:28px 0}
+.axiom .ar{font-size:22px; direction:rtl; display:block; margin-bottom:18px}
+.axiom .en{font-size:16px; color:var(--ink2); font-style:italic; padding-top:16px;
+  border-top:1px solid var(--rule2); margin:0}
+.axiom .tag{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3); display:block; margin-bottom:14px}
+
+/* ---------- definition list ---------- */
+.defs{display:grid; grid-template-columns:minmax(120px,180px) 1fr; gap:1px;
+  background:var(--rule2); border:1px solid var(--rule2); margin:24px 0}
+.defs>*{background:var(--paper); padding:14px 18px}
+.dt{font-family:Amiri,serif; font-size:20px; direction:rtl; text-align:right; color:var(--ink)}
+.dd{font-size:15.5px; color:var(--ink2)}
+.dd b{color:var(--ink); font-weight:600}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto; margin:24px 0; border:1px solid var(--rule2)}
+table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:440px}
+th{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink3); text-align:left; font-weight:500;
+  padding:11px 16px; border-bottom:1px solid var(--rule); white-space:nowrap}
+td{padding:11px 16px; border-bottom:1px solid var(--rule2); vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.ar{font-family:Amiri,serif; font-size:18px; direction:rtl; text-align:right; white-space:nowrap}
+td.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; text-align:right}
+.dim{color:var(--ink3)}
+
+/* ---------- pills ---------- */
+.pill{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.06em;
+  padding:2px 8px; border-radius:2px; white-space:nowrap; display:inline-block}
+.p-n{background:var(--nassi-bg); color:var(--nassi)}
+.p-i{background:var(--idraki-bg); color:var(--idraki)}
+
+/* ---------- meter ---------- */
+.meter{display:flex; align-items:center; gap:9px}
+.bar{height:5px; background:var(--nassi); border-radius:1px; flex:none; min-width:2px}
+.bar.lo{background:var(--ink3); opacity:.45}
+
+/* ---------- code / notation ---------- */
+pre{background:var(--raise); border:1px solid var(--rule2); border-inline-start:2px solid var(--rule);
+  padding:18px 20px; overflow-x:auto; margin:22px 0; font-size:13px; line-height:1.7;
+  font-family:"IBM Plex Mono",monospace; color:var(--ink2)}
+pre b{color:var(--ink); font-weight:500}
+pre .c{color:var(--ink3)}
+pre .t{color:var(--nassi)}
+
+/* ---------- retlah render ---------- */
+.retl{border-inline-start:2px solid var(--rule); padding-inline-start:18px; margin:18px 0}
+.retl .role{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink3); display:block; margin-bottom:5px}
+.retl .line{font-family:Amiri,serif; font-size:21px; direction:rtl; margin-bottom:4px}
+.retl .cit{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--nassi)}
+.retl+.retl{margin-top:16px}
+
+/* ---------- ops grid ---------- */
+.ops{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px;
+  background:var(--rule2); border:1px solid var(--rule2); margin:24px 0}
+.op{background:var(--paper); padding:18px}
+.op .n{font-family:Amiri,serif; font-size:21px; direction:rtl; margin-bottom:3px}
+.op .g{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink3); margin-bottom:9px}
+.op .d{font-size:14.5px; color:var(--ink2); line-height:1.55}
+
+.note{font-size:14.5px; color:var(--ink3); border-top:1px solid var(--rule2);
+  padding-top:14px; margin-top:26px}
+footer{border-top:1px solid var(--rule); margin-top:72px; padding-block:32px 72px;
+  font-size:13.5px; color:var(--ink3)}
+@media (max-width:560px){
+  .defs{grid-template-columns:1fr}
+  .dt{text-align:right; border-bottom:none; padding-bottom:2px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">نَظَرِيَّةٌ مُقْتَرَحَة · A Proposed Formalism · Draft 1</p>
+  <h1>رَتْلًا وَتَرْتِيلًا</h1>
+  <p class="sub-ar">نَظَرِيَّةُ الرَّتْلِ وَهَنْدَسَةُ التَّرْتِيل</p>
+  <p class="sub-en">A formal system for recitational navigation — with a reference implementation
+  that generates a <span class="ar">تَرْتِيل</span> of <i>n</i> <span class="ar">فُرْقَانًا</span>
+  from a sūrah or a name.</p>
+</header>
+
+<div class="col">
+
+<section>
+  <div class="shead"><span class="snum">٠</span>
+    <h2>الأَصْلُ الأَوَّل</h2><p class="h2en">The First Axiom</p></div>
+
+  <div class="axiom">
+    <span class="tag">Axiom 0 · foundational</span>
+    <span class="ar">التَّرْتِيلُ حَرَكَةٌ قُرْآنِيَّةٌ لَا تَحْصُرُهَا جِهَةٌ وَاحِدَة؛ فَالرَّتْلَةُ تُبْتَدَأُ مِنْ مَوْضِعٍ، وَتَنْتَهِي فِي مَوْضِعٍ، ثُمَّ تُحْمَلُ آثَارُهَا إِلَى مَوْضِعٍ آخَرَ بِالِالْتِفَاتِ وَالإِسْنَادِ وَالحَمْلِ وَالوَصْلِ وَالفَصْلِ وَالِاقْتِفَاءِ وَالرُّجُوع، حَتَّى يَصِيرَ التَّقَدُّمُ وَالرُّجُوعُ وَجْهَيْ حَرَكَةٍ وَاحِدَة.</span>
+    <p class="en">Tarteel is a Qur'anic movement not confined to a single direction: a رتلة begins at one
+    coordinate and terminates at another, after which its traces may be carried into a further coordinate
+    through turning, anchoring, carrying, stitching, separation, trace-following and return, until forward
+    movement and return become two aspects of one motion.</p>
+  </div>
+
+  <p class="lede">This document sets out the objects, operations and constraints of that movement precisely
+  enough to compute with. It is a proposed methodology of recitational navigation. It is not a claim about
+  the transmitted <span class="ar">قِرَاءَات</span>, and it neither replaces nor revises
+  <span class="ar">تَجْوِيد</span>: those sciences ask how sound is correctly realised and which transmitted
+  reading is being realised. This one asks how the reciter moves.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">١</span>
+    <h2>ثَلَاثَةُ أَشْيَاءَ لَا شَيْءٌ وَاحِد</h2><p class="h2en">Three objects, not one</p></div>
+
+  <p>The single word <i>text</i> has been doing three jobs. Separating them resolves the contradiction
+  between the integrity axiom and the practice: <span class="ar">غُلِبَتِ ٱلرُّومُ الٓمٓ</span> is a token
+  order found nowhere in the muṣḥaf, yet nothing has been invented.</p>
+
+  <div class="defs">
+    <div class="dt">النَّص</div>
+    <div class="dd"><b>The text.</b> Invariant. Never the output of any operation.</div>
+    <div class="dt">التِّلَاوَة</div>
+    <div class="dd"><b>The utterance.</b> May present tokens in an order not found in النص.</div>
+    <div class="dt">المَسَار</div>
+    <div class="dd"><b>The path.</b> The ordered list of coordinates traversed.</div>
+  </div>
+
+  <div class="axiom">
+    <span class="tag">Axiom 1 · integrity</span>
+    <span class="ar">لَا تُنْشِئُ الرَّتْلَةُ نَصًّا، بَلْ تُنْشِئُ مَسَارًا؛ وَكُلُّ لَفْظٍ فِي التِّلَاوَةِ لَا بُدَّ أَنْ يَكُونَ مُسْنَدًا إِلَى مَوْضِعٍ فِي النَّصّ.</span>
+    <p class="en">A رتلة creates no text; it creates a path. Every token in the utterance must be
+    attributable to a coordinate in the text.</p>
+  </div>
+
+  <p>This yields a <b>well-formedness criterion</b> rather than a good intention. A رتلة is well-formed
+  if and only if it is fully coordinate-annotatable. What excludes arbitrary recombination is now a
+  property that can be checked.</p>
+
+  <div class="axiom">
+    <span class="tag">Definition · the central move</span>
+    <span class="ar">الرَّتْلَةُ لَيْسَتْ لَفْظًا، بَلْ سِلْسِلَةَ إِسْنَادَات.</span>
+    <p class="en">A رتلة is not a string. It is a sequence of citations.</p>
+  </div>
+
+  <p>Two رتلات that sound identical but cite different coordinates are <i>different</i> رتلات. The
+  <span class="ar">الٓمٓ</span> of <mono>30:1</mono> and the <span class="ar">الٓمٓ</span> of <mono>2:1</mono>
+  are homophones, not the same node. Under the older reading, four carries from
+  <span class="ar">الٓمٓ</span> were one operation repeated; under this definition they are four distinct
+  navigational events, which is what they were experienced as.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٢</span>
+    <h2>أَرْبَعُ مَرَاتِب</h2><p class="h2en">Four levels</p></div>
+
+  <p>The <span class="ar">الْتِفَات</span> was previously placed inside the رتلة, but it describes what
+  happens after one closes. Moving it onto the edge makes the geometry a derived object with a definition
+  rather than a metaphor.</p>
+
+  <pre><b>رَتْلَة</b>   = ⟨ ابتداء , مسار , وقف ⟩          <span class="c">closed, internal</span>
+<b>وَصْلَة</b>   = ⟨ رتلةᵢ , سبب , رتلةᵢ₊₁ ⟩       <span class="c">the edge — carries الالتفات</span>
+<b>تَرْتِيل</b>  = رتلات joined by وصلات           <span class="c">a walk</span>
+<b>هَنْدَسَة</b>  = the graph induced by ترتيلات      <span class="c">order forgotten, edges kept</span></pre>
+
+  <p>A <span class="ar">فُرْقَان</span> sits between the third and fourth: a set of رتلات sharing one
+  anchor and one governing operation, closed when a رتلة returns to that anchor. Closure is a cycle in
+  the graph — which makes the length of a فرقان emergent rather than stipulated, and gives
+  <span class="ar">الرُّجُوع</span> a formal job.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٣</span>
+    <h2>الأَفْعَالُ وَالأَحْوَالُ وَالوَقَائِع</h2><p class="h2en">Acts, states, events</p></div>
+
+  <p>The operations are not all the same kind of thing, and a flat list hides it. Only
+  <span class="ar">أفعال</span> can be prescribed in a method; <span class="ar">أحوال</span> can be
+  tested; <span class="ar">وقائع</span> can only be recorded.</p>
+
+  <h3>أَفْعَال — acts the reciter performs</h3>
+  <div class="ops">
+    <div class="op"><div class="n">الفَصْل</div><div class="g">fasl(span, at) → span, span</div>
+      <div class="d">Cut a continuous expression at a boundary. Separation is what makes stitching perceptible.</div></div>
+    <div class="op"><div class="n">الوَصْل</div><div class="g">wasl(r₁, r₂) → r</div>
+      <div class="d">Bring two separated coordinates into one navigational event.</div></div>
+    <div class="op"><div class="n">الحَمْل</div><div class="g">hamal(a, b) → [a, b]</div>
+      <div class="d">Carry a coordinate across a stop into a new beginning.</div></div>
+    <div class="op"><div class="n">العَكْس</div><div class="g">aks(r) → reversed(r)</div>
+      <div class="d">Reverse attachment, so an opening can be heard as a destination.</div></div>
+    <div class="op"><div class="n">الضَّغْط</div><div class="g">daght(path) → [first, last]</div>
+      <div class="d">Collapse a traversed path into a single minimal coordinate pair.</div></div>
+    <div class="op"><div class="n">الإحَاطَة</div><div class="g">ihata(r, sp) → [sp, …r, sp]</div>
+      <div class="d">Repetition as an enclosing contour — recurrence functioning as an edge.</div></div>
+    <div class="op"><div class="n">الجَمْع</div><div class="g">jam(c₁, c₂) → cluster | ∅</div>
+      <div class="d">Union of two fawātiḥ letter-sets. Admissible only where the union is itself attested.</div></div>
+    <div class="op"><div class="n">الإسْقَاط</div><div class="g">isqat(sp, w, mode)</div>
+      <div class="d">Scoped omission. The only operation that subtracts rather than rearranges — and therefore the only one that is gated.</div></div>
+  </div>
+
+  <div class="axiom">
+    <span class="tag">Axiom 2 · the gate on omission</span>
+    <span class="ar">الإسْقَاطُ جَائِزٌ فِي مَقَامِ التَّوْجِيه، مَمْنُوعٌ فِي مَقَامِ الإسْنَاد.</span>
+    <p class="en">Omission is admissible in the orienting mode and inadmissible in the citational mode.
+    Dropping <span class="ar">لَا</span> so that <span class="ar">رَيْبٌ فِيهِ هُدًى</span> becomes an
+    orienting declaration to oneself is a legitimate act in <span class="ar">مَقَامِ التَّوْجِيه</span>.
+    The same utterance offered as a reading of the text is not.</p>
+  </div>
+
+  <h3>أَحْوَال — states that obtain</h3>
+  <p>You do not <i>perform</i> a <span class="ar">حَمْل</span>. You perform a
+  <span class="ar">وَقْف</span>, and the node either survives it or does not — which means every stop is
+  a binary choice the vocabulary had no word for:
+  <b><span class="ar">وَقْفٌ مَعَ الإبْقَاء</span></b> against
+  <b><span class="ar">وَقْفٌ مَعَ الإسْقَاط</span></b>. <span class="ar">الإسْنَاد</span> is likewise a
+  state: a node <i>stands</i> anchored to another.</p>
+
+  <h3>وَقَائِع — events that befall the reciter</h3>
+  <p><span class="ar">الِاقْتِفَاء</span> — a remote coordinate becoming available — is not chosen. The
+  reciter chooses only whether to follow it. This is why the boundary between trace-following and
+  arbitrary association needs an evidentiary standard rather than a rule, which §4 supplies.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٤</span>
+    <h2>أَسْبَابُ الِابْتِدَاء</h2><p class="h2en">The causes of beginning</p></div>
+
+  <p>“Why did I begin here?” always has a post-hoc answer, so the axiom is empty until the admissible
+  causes are enumerated in advance and each is assigned a standing. Five are settled by inspecting the
+  text. One is not.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>سبب</th><th>Computed as</th><th>Standing</th></tr></thead>
+    <tbody>
+      <tr><td class="ar">تَجَاوُر مُصْحَفِي</td><td>muṣḥaf adjacency</td><td><span class="pill p-n">نصّي</span></td></tr>
+      <tr><td class="ar">تَكْرَار لَفْظِي</td><td>inverted index on lemma / root</td><td><span class="pill p-n">نصّي</span></td></tr>
+      <tr><td class="ar">اشْتِمَال حَرْفِي</td><td>letter-set containment over fawātiḥ</td><td><span class="pill p-n">نصّي</span></td></tr>
+      <tr><td class="ar">صِيغَة مُشْتَرَكَة</td><td><i>n</i>-gram index over rasm sequences</td><td><span class="pill p-n">نصّي</span></td></tr>
+      <tr><td class="ar">تَمَاثُل تَرْكِيبِي</td><td>POS-pattern match</td><td><span class="pill p-n">نصّي</span></td></tr>
+      <tr><td class="ar">تَجَانُس صَوْتِي</td><td>consonantal-skeleton distance</td><td><span class="pill p-i">إدراكي</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <p><span class="ar">الٓمٓر</span> resonating with <span class="ar">الأَمْر</span> is a
+  <i>graphemic</i> relation, not a derivation from <span class="ar">ء-م-ر</span>. It remains admissible —
+  it is typed <span class="ar">إدراكي</span> and declared. The three-layer discipline is not an afterword
+  to the system; it is a type on every edge.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٥</span>
+    <h2>وَزْنُ السَّبَب</h2><p class="h2en">The weight of a cause</p></div>
+
+  <p>Typing edges turned out not to be enough. Measuring the fan-out of each cause across all 817 words
+  of sūrat al-Rūm gives a spread of six orders of magnitude — an edge through the lemma
+  <span class="ar">ال</span> is textually impeccable and navigationally worthless.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>سبب</th><th class="num">total</th><th class="num">median</th><th class="num">max</th></tr></thead>
+    <tbody>
+      <tr><td class="ar">اشْتِمَال حَرْفِي</td><td class="num">2</td><td class="num">2</td><td class="num">2</td></tr>
+      <tr><td class="ar">تَجَاوُر مُصْحَفِي</td><td class="num">1,634</td><td class="num">2</td><td class="num">2</td></tr>
+      <tr><td class="ar">صِيغَة مُشْتَرَكَة</td><td class="num">3,769</td><td class="num">3</td><td class="num">132</td></tr>
+      <tr><td class="ar">تَمَاثُل تَرْكِيبِي</td><td class="num">179,750</td><td class="num">158</td><td class="num">969</td></tr>
+      <tr><td class="ar">تَكْرَار (جِذْر)</td><td class="num">217,940</td><td class="num">188</td><td class="num">2,850</td></tr>
+      <tr><td class="ar">تَكْرَار (لَفْظ)</td><td class="num">2,801,823</td><td class="num">1,681</td><td class="num">18,429</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>The resolution is not a stoplist but a third quantity, which falls out as information content:</p>
+
+  <div class="axiom">
+    <span class="tag">Definition · وزن السبب</span>
+    <span class="ar">وَزْنُ السَّبَبِ مِقْدَارُ مَا يَحْمِلُهُ مِنْ خَبَر: كُلَّمَا قَلَّ عَدَدُ المَوَاضِعِ الَّتِي يَبْلُغُهَا، عَظُمَ وَزْنُه.</span>
+    <p class="en">w(س) = −log₂( |targets| / |corpus| ) — the bits a stitch carries. A cause reaching
+    everywhere tells you nothing about where you are.</p>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>سبب</th><th class="num">n</th><th class="num">bits</th><th>weight</th></tr></thead>
+    <tbody>
+      <tr><td class="ar">الم ⊂ المر</td><td class="num">2</td><td class="num">15.2</td>
+        <td><span class="meter"><span class="bar" style="width:100px"></span></span></td></tr>
+      <tr><td class="ar">لله الأمر</td><td class="num">2</td><td class="num">15.2</td>
+        <td><span class="meter"><span class="bar" style="width:100px"></span></span></td></tr>
+      <tr><td class="ar">تلك آيات الكتاب</td><td class="num">7</td><td class="num">13.4</td>
+        <td><span class="meter"><span class="bar" style="width:88px"></span></span></td></tr>
+      <tr><td class="ar">يُوسُف</td><td class="num">27</td><td class="num">11.5</td>
+        <td><span class="meter"><span class="bar" style="width:76px"></span></span></td></tr>
+      <tr><td class="ar">مُوسَى</td><td class="num">136</td><td class="num">9.2</td>
+        <td><span class="meter"><span class="bar" style="width:61px"></span></span></td></tr>
+      <tr><td class="ar">جذر د-ن-و</td><td class="num">133</td><td class="num">9.2</td>
+        <td><span class="meter"><span class="bar" style="width:61px"></span></span></td></tr>
+      <tr><td class="ar">رَبّ</td><td class="num">975</td><td class="num">6.3</td>
+        <td><span class="meter"><span class="bar lo" style="width:42px"></span></span></td></tr>
+      <tr><td class="ar">ال</td><td class="num">8,377</td><td class="num">3.2</td>
+        <td><span class="meter"><span class="bar lo" style="width:21px"></span></span></td></tr>
+    </tbody>
+  </table></div>
+
+  <p>A single threshold at 8 bits then does the work a hand-built stoplist would have done, without one:
+  <span class="ar">ال</span> and <span class="ar">و</span> fall below it, proper names and formulae pass.
+  Every edge in the system now carries three independent, computable constraints —
+  <b>type</b> (epistemic), <b>weight</b> (informational), <b>grounding</b> (temporal).</p>
+
+  <div class="axiom">
+    <span class="tag">Axiom 3 · grounding</span>
+    <span class="ar">لَا يُتَّخَذُ مَوْضِعٌ جِسْرًا إِلَّا إِذَا ثَبَتَ فِي رَتْلَةٍ سَابِقَة.</span>
+    <p class="en">A coordinate may not serve as a bridge unless it was established in a prior رتلة.
+    Note what this does not say: an ungrounded bridge is not false, it is merely not yet load-bearing.
+    The constraint is on the walk, not on the text — and in the implementation it is not a filter applied
+    afterward, it <i>is</i> the frontier expansion rule.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٦</span>
+    <h2>الجَمْعُ لَا يَجُوزُ إِلَّا مُثْبَتًا</h2><p class="h2en">Union must be attested</p></div>
+
+  <p>Fixing closure by attestation turns <span class="ar">الجَمْع</span> from a suggestive move into an
+  almost-empty operator. Across all 91 pairs of the fourteen fawātiḥ clusters, exactly two unions are
+  themselves attested in the muṣḥaf:</p>
+
+  <pre><span class="t">الر ∪ الم = المر</span>   <span class="c">→ sūrah 13</span>
+<span class="t">الم ∪ ص  = المص</span>   <span class="c">→ sūrah  7</span>
+
+<span class="c">admissible unions: 2 of 91 pairs</span></pre>
+
+  <p>The operator has two legal moves in the entire Qur'an. One of them was found by ear before the
+  system existed; the second — <span class="ar">المص</span> at the head of al-Aʿrāf — is a standing
+  prediction that has not yet been traversed.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٧</span>
+    <h2>التَّوْلِيد</h2><p class="h2en">Generation</p></div>
+
+  <p>With the objects and constraints fixed, generating a <span class="ar">تَرْتِيل</span> of
+  <i>n</i> <span class="ar">فُرْقَانًا</span> is a beam search over a weighted graph with a growing
+  frontier. Grounding is enforced by construction rather than by filtering.</p>
+
+  <pre>GENERATE(Σ seed, n):
+    E₀ ← Σ                          <span class="c">established coordinates</span>
+    for k in 1..n:
+        aₖ ← anchor drawn from Eₖ₋₁  <span class="c">أصل التقديم, by construction</span>
+        Oₖ ← governing operation
+        Fₖ ← <b>ابتداء → تفريق → توسّع → رجوع</b>   <span class="c">closes on return to aₖ</span>
+        Eₖ ← Eₖ₋₁ ∪ coordinates reached
+    return ⟨F₁ … Fₙ⟩
+
+  maximise  Σ w(س)  subject to:
+    every رتلة coordinate-annotatable
+    الإسقاط only in مقام التوجيه
+    one anchor and one governing operation per فرقان</pre>
+
+  <p>A <span class="ar">نَبِي</span> or <span class="ar">رَسُول</span> is seeded on the name-lemma alone;
+  everything else must be <i>reached</i> by a typed, weighted edge, so the system finds the
+  <span class="ar">قِصَّة</span> rather than being handed it.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٨</span>
+    <h2>مَخْرَجٌ مُوَلَّد</h2><p class="h2en">Generated output</p></div>
+
+  <p>Seeded on the opening of al-Rūm with <mono>n=3</mono> and no knowledge of any prior traversal, the
+  first <span class="ar">فُرْقَان</span> returns:</p>
+
+  <div class="retl">
+    <span class="role">مَحْمِل · anchor</span>
+    <div class="line">الٓمٓ</div><div class="cit">30:1:1</div>
+  </div>
+  <div class="retl">
+    <span class="role">ابتداء</span>
+    <div class="line">الٓمٓ</div><div class="cit">⟨30:1:1⟩</div>
+  </div>
+  <div class="retl">
+    <span class="role">تفريق</span>
+    <div class="line">الٓمٓ غُلِبَتِ ٱلرُّومُ</div><div class="cit">⟨30:1:1, 30:2:1-2⟩</div>
+  </div>
+  <div class="retl">
+    <span class="role">توسّع · اشتمال حرفي · 15.2 bits · <span class="pill p-n">نصّي</span></span>
+    <div class="line">الٓمٓ الٓمٓر تِلْكَ ءَايَٰتُ ٱلْكِتَٰبِ</div><div class="cit">⟨30:1:1, 13:1:1-4⟩</div>
+  </div>
+  <div class="retl">
+    <span class="role">رجوع · عكس, closing the cycle</span>
+    <div class="line">الٓمٓر تِلْكَ ءَايَٰتُ ٱلْكِتَٰبِ الٓمٓ</div><div class="cit">⟨13:1:1-4, 30:1:1⟩</div>
+  </div>
+
+  <p style="margin-top:26px">Continuing, the walk runs <b>30 → 13 → 12</b>, reaching
+  <span class="ar">الٓر تِلْكَ ءَايَٰتُ ٱلْكِتَٰبِ ٱلْمُبِينِ</span> at the head of Yūsuf, then
+  <mono>31:2</mono> — a route that had been walked by ear before the system was built. That convergence is
+  the first evidence the definitions are doing work rather than describing after the fact. Seeded instead
+  on the bare lemma <span class="ar">يُوسُف</span>, it reaches <mono>40:34</mono> and <mono>6:84</mono>,
+  and from there the formula <span class="ar">وَوَهَبْنَا لَهُۥٓ إِسْحَٰقَ</span> at <mono>29:27</mono>
+  and <mono>21:72</mono>.</p>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">٩</span>
+    <h2>مَا لَمْ يَتِمَّ بَعْد</h2><p class="h2en">What is not yet settled</p></div>
+
+  <p>Four things are known to be weak, and naming them is part of the record.</p>
+
+  <div class="defs">
+    <div class="dt">التَّفْرِيق</div>
+    <div class="dd">Splitting is still mechanical — fixed word counts rather than syntactic boundaries.
+    A hand-made <span class="ar">فرقان</span> cuts at <span class="ar">ٱلْكِتَٰبُ لَا رَيْبَ</span>;
+    the generator cannot yet find that boundary.</div>
+    <div class="dt">العَامِلَان</div>
+    <div class="dd"><span class="ar">الإسْقَاط</span> and <span class="ar">الإحَاطَة</span> are
+    implemented but unused by the planner. The schema exercises only carry, reverse and compress.</div>
+    <div class="dt">التَّجَانُس</div>
+    <div class="dd">The one <span class="ar">إدراكي</span> generator is the least developed, and it is
+    the one carrying the most epistemic risk. It needs its own declaration protocol.</div>
+    <div class="dt">التَّقْوِيم</div>
+    <div class="dd">Total edge weight is the objective, but nothing yet scores whether a generated
+    <span class="ar">فرقان</span> is <i>perceptually</i> sound. That may not be reducible to bits.</div>
+  </div>
+
+  <p class="note">Reference implementation: four layers, ~300 lines — a segment-addressable muṣḥaf
+  (130,030 segments / 77,429 words), six سبب generators, the operator algebra over citation-sequences, and
+  the two planners. Corpus: Quranic Arabic Corpus morphology. Every claim of measurement in this document
+  is output from that code and is reproducible by running it.</p>
+</section>
+
+</div>
+
+<footer>
+  <p><span class="ar" style="font-size:16px">رَتْلًا وَتَرْتِيلًا</span> — Draft 1. A proposed formalism,
+  offered as a research programme rather than a finding. Where it describes
+  <span class="ar">إمَالَة</span>, <span class="ar">تَثْنِيَة</span>,
+  <span class="ar">إسْنَاد</span> or geometric correspondence, the conceptual construct is preserved and
+  held distinct from any philological claim, which would require independent verification.</p>
+</footer>
+
+</div>
