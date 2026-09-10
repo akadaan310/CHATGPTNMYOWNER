@@ -1,0 +1,599 @@
+<title>الرُّكُوب</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --vel:#E7DFCC; --vel2:#DED4BD; --sunk:#D2C6AA;
+  --ink:#3A2F1C; --ink2:#6B5C42; --ink3:#94856B;
+  --hi:#FFFAF0; --lo:#A8987A;
+  --brass:#8A6D24; --brass2:#B89344;
+  --nassi:#0E5560; --manqul:#4C3D78; --idraki:#8A5410;
+  --glow:#0E556033;
+}
+:root[data-theme="dark"]{
+  --vel:#241C12; --vel2:#1C160E; --sunk:#171108;
+  --ink:#D8C9AC; --ink2:#A2907260; --ink2:#A29072; --ink3:#6E6250;
+  --hi:#4A3D28; --lo:#0F0A05;
+  --brass:#C9A85C; --brass2:#E4C888;
+  --nassi:#63C6D3; --manqul:#B0A0E0; --idraki:#E0AC62;
+  --glow:#63C6D344;
+}
+*{box-sizing:border-box}
+body{margin:0; background:#0A0805; color:var(--ink);
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:14px;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden}
+.q{font-family:"Amiri Quran",Amiri,serif; direction:rtl}
+.ar{font-family:Amiri,serif; direction:rtl}
+
+/* ---------- the vessel ---------- */
+#vessel{max-width:520px; margin:0 auto; min-height:100vh; position:relative;
+  display:flex; flex-direction:column;
+  background:
+    radial-gradient(120% 60% at 50% 0%, #00000018, transparent 60%),
+    linear-gradient(#00000010, #00000010),
+    var(--vel);
+  box-shadow:0 0 70px #0000009c}
+.roll{height:46px; flex:none; position:relative; z-index:6;
+  background:linear-gradient(180deg,#3B2A16,#7A5A2E 22%,#C6A76A 48%,#7A5A2E 74%,#2E2010);
+  box-shadow:0 5px 16px #00000070}
+.roll.b{transform:scaleY(-1)}
+.roll::before,.roll::after{content:''; position:absolute; top:0; bottom:0; width:30px;
+  background:linear-gradient(180deg,#241708,#8A6D24 40%,#E4C888 52%,#6B521C 70%,#1B1206)}
+.roll::before{left:0} .roll::after{right:0}
+
+#field{flex:1; position:relative; padding:22px 20px 8px; z-index:2; overflow:hidden}
+#grain{position:absolute; inset:0; pointer-events:none; opacity:.5; z-index:1;
+  mix-blend-mode:multiply}
+:root[data-theme="dark"] #grain{mix-blend-mode:screen; opacity:.22}
+#cons,#paths{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+#cons{z-index:0} #paths{z-index:3}
+#stage{position:relative; z-index:2}
+
+/* ---------- embossed text ---------- */
+.emb{color:transparent;
+  text-shadow:0 1px 0 var(--hi), 0 -1px 1px var(--lo), 0 0 2px #00000018}
+:root[data-theme="dark"] .emb{text-shadow:0 1px 0 var(--hi), 0 -1px 1px var(--lo)}
+.line{font-family:"Amiri Quran",Amiri,serif; direction:rtl; line-height:2.05;
+  margin:0 0 3px; word-spacing:.08em}
+.w{position:relative; display:inline}
+
+/* ---------- retlah rows ---------- */
+.row{margin:0 0 16px; opacity:0; transform:translateY(6px);
+  transition:opacity .7s ease, transform .7s ease}
+.row.in{opacity:1; transform:none}
+.row .role{font-size:9px; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--ink3); display:block; margin-bottom:2px}
+.row .cit{font-size:10px; color:var(--brass); letter-spacing:.03em}
+.row.anchor .line{font-size:30px}
+.row .line{font-size:23px}
+
+/* ---------- nodes ---------- */
+.node{position:absolute; width:9px; height:9px; margin:-4.5px 0 0 -4.5px;
+  border-radius:50%; z-index:4; pointer-events:auto; cursor:pointer;
+  background:var(--nassi); box-shadow:0 0 0 0 var(--glow)}
+.node.m{background:var(--manqul)} .node.i{background:var(--idraki)}
+.node.live{animation:pulse var(--p,2.6s) ease-in-out infinite}
+.node.peak{animation:pulse 1.4s ease-in-out infinite; transform:scale(1.35)}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 var(--glow); opacity:.55}
+  50%{box-shadow:0 0 11px 5px var(--glow); opacity:1}}
+@media (prefers-reduced-motion:reduce){.node.live,.node.peak{animation:none; opacity:1}}
+
+/* ---------- chrome ---------- */
+#top{position:relative; z-index:6; padding:11px 20px 0; display:flex;
+  align-items:center; gap:10px}
+#top .ttl{font-family:Amiri,serif; font-size:15px; color:var(--ink2); direction:rtl;
+  margin-inline-end:auto}
+#top button{background:none; border:none; color:var(--ink3); font:inherit; font-size:10px;
+  letter-spacing:.12em; text-transform:uppercase; cursor:pointer; padding:5px 8px}
+#top button:hover{color:var(--brass)}
+#rule{height:1px; background:linear-gradient(90deg,transparent,var(--brass),transparent);
+  opacity:.5; margin:7px 20px 0; position:relative; z-index:6}
+
+#transport{position:relative; z-index:6; padding:10px 20px 16px; display:flex;
+  align-items:center; gap:12px; min-height:52px}
+#transport button{width:31px; height:31px; border-radius:50%; flex:none; cursor:pointer;
+  border:1px solid var(--brass); background:none; color:var(--brass); font-size:12px;
+  display:flex; align-items:center; justify-content:center; padding:0}
+#transport button:hover{background:#8A6D2418}
+#transport button[disabled]{opacity:.3; cursor:default}
+#track{flex:1; height:2px; background:var(--sunk); position:relative; border-radius:1px}
+#fill{position:absolute; inset:0 auto 0 0; width:0; background:var(--brass);
+  border-radius:1px; transition:width .5s linear}
+#stage-name{font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+  min-width:58px; text-align:right}
+
+/* ---------- overlay panels ---------- */
+.panel{position:absolute; inset:0; z-index:8; display:flex; flex-direction:column;
+  padding:20px; overflow-y:auto;
+  background:linear-gradient(#E7DFCCEE,#E7DFCCFA)}
+:root[data-theme="dark"] .panel{background:linear-gradient(#241C12EE,#241C12FA)}
+.panel h2{font-family:Amiri,serif; font-size:26px; margin:0 0 4px; direction:rtl;
+  font-weight:700; color:var(--ink)}
+.panel .lede{font-size:12px; line-height:1.65; color:var(--ink2); margin:0 0 16px}
+.panel .lede b{color:var(--ink)}
+
+.card{display:flex; align-items:center; gap:11px; width:100%; text-align:start;
+  padding:9px 11px; margin-bottom:5px; cursor:pointer;
+  border:1px solid transparent; border-inline-start:2px solid var(--sunk);
+  background:#00000006; font:inherit; color:inherit}
+:root[data-theme="dark"] .card{background:#FFFFFF06}
+.card:hover{border-inline-start-color:var(--brass); background:#8A6D2412}
+.card .a{font-family:Amiri,serif; font-size:18px; direction:rtl; flex:1; min-width:0}
+.card .b{font-size:10px; color:var(--ink3); font-variant-numeric:tabular-nums; flex:none}
+.card .band{font-size:8.5px; letter-spacing:.05em; padding:2px 6px; flex:none}
+.narrow{color:var(--nassi); background:#0E556018}
+.mid{color:var(--brass); background:#8A6D2418}
+.wide{color:var(--idraki); background:#8A541018}
+.card.dflt{border-inline-start-color:var(--brass); background:#8A6D2410; margin-bottom:14px}
+
+.opt{display:block; width:100%; text-align:start; padding:11px 12px; margin-bottom:7px;
+  cursor:pointer; border:1px solid var(--sunk); background:#00000005; font:inherit; color:inherit}
+:root[data-theme="dark"] .opt{background:#FFFFFF05}
+.opt:hover,.opt.sel{border-color:var(--brass); background:#8A6D2414}
+.opt .t{font-family:"Amiri Quran",Amiri,serif; direction:rtl; font-size:19px; line-height:1.9;
+  margin-bottom:3px; color:var(--ink)}
+.opt .m{font-size:9.5px; color:var(--ink3); display:flex; gap:9px; align-items:center}
+.opt .m .bb{color:var(--brass)}
+.opt .m .ty{padding:1px 5px; font-size:8.5px}
+.ty-n{color:var(--nassi); background:#0E556018}
+.ty-i{color:var(--idraki); background:#8A541018}
+
+.act{display:block; width:100%; padding:13px; margin-top:12px; cursor:pointer;
+  border:1px solid var(--brass); background:#8A6D2414; color:var(--brass);
+  font:inherit; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase}
+.act:hover{background:#8A6D2426}
+.act[disabled]{opacity:.35; cursor:default}
+.ghost{border-color:var(--sunk); color:var(--ink3); background:none; margin-top:6px}
+
+/* ---------- سُكُون ---------- */
+#sukun{position:absolute; inset:0; z-index:9; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; cursor:pointer; padding:30px;
+  background:linear-gradient(#E7DFCC,#DED4BD)}
+:root[data-theme="dark"] #sukun{background:linear-gradient(#241C12,#1C160E)}
+#sukun .b{font-family:"Amiri Quran",Amiri,serif; font-size:clamp(27px,7.4vw,38px);
+  direction:rtl; line-height:2; text-align:center}
+#sukun .t{margin-top:34px; font-size:9.5px; letter-spacing:.24em; text-transform:uppercase;
+  color:var(--ink3); animation:breathe 3.4s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.32}50%{opacity:.85}}
+
+/* ---------- الخَتْم ---------- */
+#seal{position:absolute; inset:0; z-index:10; display:none; align-items:center;
+  justify-content:center; background:#0000; pointer-events:none}
+#seal.on{display:flex}
+#stamp{width:132px; height:132px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; flex-direction:column; text-align:center;
+  border:3px solid var(--brass); color:var(--brass);
+  transform:scale(3.4); opacity:0; animation:press 1.5s cubic-bezier(.5,0,.2,1) forwards}
+#stamp .a{font-family:Amiri,serif; font-size:23px; direction:rtl; line-height:1.4}
+#stamp .n{font-size:9px; letter-spacing:.1em; margin-top:5px}
+@keyframes press{0%{transform:scale(3.4); opacity:0}
+  62%{transform:scale(.94); opacity:1} 78%{transform:scale(1.04)} 100%{transform:scale(1); opacity:1}}
+
+.hint{font-size:10px; color:var(--ink3); line-height:1.7; margin-top:14px;
+  border-top:1px solid var(--sunk); padding-top:11px}
+.hint .ar{font-size:14px; color:var(--ink2)}
+</style>
+
+<div id="vessel">
+  <div id="top">
+    <span class="ttl">المِرْتَال</span>
+    <button id="mute">صَوْت</button>
+    <button id="theme">◑</button>
+  </div>
+  <div id="rule"></div>
+  <div class="roll"></div>
+
+  <div id="field">
+    <svg id="cons" aria-hidden="true"></svg>
+    <svg id="paths" aria-hidden="true"></svg>
+    <div id="grain"></div>
+    <div id="stage"></div>
+    <div id="sukun">
+      <div class="b emb q">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+      <div class="t">المس لتبدأ · touch to begin</div>
+    </div>
+    <div id="seal"><div id="stamp"><div class="a">خَتْم</div><div class="n" id="stampn"></div></div></div>
+  </div>
+
+  <div class="roll b"></div>
+  <div id="transport">
+    <button id="pause" title="pause">❚❚</button>
+    <button id="step" title="step">›</button>
+    <div id="track"><div id="fill"></div></div>
+    <span id="stage-name">سُكُون</span>
+  </div>
+</div>
+
+<script id="D" type="application/json">{"basm":[{"w":1,"cite":"1:1:1","opts":[{"to":[27,30],"span":[1,7],"sabab":"صيغة مشتركة","ev":"formula[3]:بسم الله الرحمن","bits":15.2,"ty":"نصّي"},{"to":[11,41],"span":[1,7],"sabab":"صيغة مشتركة","ev":"formula[2]:بسم الله","bits":14.7,"ty":"نصّي"},{"to":[7,180],"span":[1,7],"sabab":"تكرار لفظي (لفظ)","ev":"lem:اسْم","bits":11.0,"ty":"نصّي"},{"to":[49,11],"span":[1,7],"sabab":"تكرار لفظي (لفظ)","ev":"lem:اسْم","bits":11.0,"ty":"نصّي"}]},{"w":2,"cite":"1:1:2","opts":[{"to":[27,30],"span":[1,7],"sabab":"صيغة مشتركة","ev":"formula[3]:الله الرحمن الرحيم","bits":15.2,"ty":"نصّي"}]},{"w":3,"cite":"1:1:3","opts":[{"to":[27,30],"span":[1,7],"sabab":"صيغة مشتركة","ev":"formula[2]:الرحمن الرحيم","bits":13.7,"ty":"نصّي"},{"to":[2,163],"span":[1,7],"sabab":"صيغة مشتركة","ev":"formula[2]:الرحمن الرحيم","bits":13.7,"ty":"نصّي"},{"to":[41,2],"span":[1,4],"sabab":"صيغة مشتركة","ev":"formula[2]:الرحمن الرحيم","bits":13.7,"ty":"نصّي"},{"to":[59,22],"span":[1,7],"sabab":"صيغة مشتركة","ev":"formula[2]:الرحمن الرحيم","bits":13.7,"ty":"نصّي"}]},{"w":4,"cite":"1:1:4","opts":[{"to":[26,9],"span":[1,5],"sabab":"تكرار لفظي (لفظ)","ev":"lem:رَحِيم","bits":9.4,"ty":"نصّي"},{"to":[4,96],"span":[1,7],"sabab":"تكرار لفظي (لفظ)","ev":"lem:رَحِيم","bits":9.4,"ty":"نصّي"},{"to":[49,12],"span":[1,7],"sabab":"تكرار لفظي (لفظ)","ev":"lem:رَحِيم","bits":9.4,"ty":"نصّي"},{"to":[34,2],"span":[1,7],"sabab":"تكرار لفظي (لفظ)","ev":"lem:رَحِيم","bits":9.4,"ty":"نصّي"}]}],"alm":[{"to":[2,2],"span":[1,4]},{"to":[3,2],"span":[1,4]},{"to":[29,2],"span":[1,4]},{"to":[30,2],"span":[1,2]},{"to":[31,2],"span":[1,4]},{"to":[32,2],"span":[1,4]}],"cross":{"alr":{"to":[12,1],"span":[1,5]},"almr":{"to":[13,1],"span":[1,4]},"alms":{"to":[7,1],"span":[1,1]}},"wijha":[{"ar":"مُسْلِمًا مُؤْمِنًا حَنِيفًا","tr":"the declared state","n":87,"bits":9.8,"suras":41,"band":"mid","default":true},{"ar":"يَا يَحْيَى","tr":"Yaḥyā","n":5,"bits":13.9,"suras":4,"band":"narrow","default":false},{"ar":"يَا زَكَرِيَّا","tr":"Zakariyyā","n":7,"bits":13.4,"suras":4,"band":"narrow","default":false},{"ar":"يَا دَاوُودُ","tr":"Dāwūd","n":16,"bits":12.2,"suras":9,"band":"narrow","default":false},{"ar":"بَنِي آدَم","tr":"Banī Ādam","n":25,"bits":11.6,"suras":9,"band":"narrow","default":false},{"ar":"يَا عِيسَى ابْنَ مَرْيَم","tr":"ʿĪsā ibn Maryam","n":25,"bits":11.6,"suras":11,"band":"narrow","default":false},{"ar":"يَا مَرْيَم","tr":"Maryam","n":34,"bits":11.2,"suras":12,"band":"mid","default":false},{"ar":"الإِنْسَان","tr":"al-Insān","n":71,"bits":10.1,"suras":46,"band":"mid","default":false},{"ar":"يَا أَيُّهَا النَّبِي","tr":"al-Nabī","n":75,"bits":10.0,"suras":20,"band":"mid","default":false},{"ar":"يَا مُوسَى","tr":"Mūsā","n":136,"bits":9.2,"suras":34,"band":"mid","default":false},{"ar":"يَا أَيُّهَا النَّاس","tr":"al-Nās","n":241,"bits":8.3,"suras":53,"band":"wide","default":false},{"ar":"يَا أَيُّهَا الرُّسُل","tr":"al-Rusul","n":332,"bits":7.9,"suras":61,"band":"wide","default":false},{"ar":"يَا أَيُّهَا الَّذِينَ آمَنُوا","tr":"alladhīna āmanū","n":537,"bits":7.2,"suras":73,"band":"wide","default":false}],"text":{"1:1":"بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ","2:1":"الٓمٓ","2:2":"ذَٰلِكَ ٱلۡكِتَٰبُ لَا رَيۡبَۛ فِيهِۛ هُدٗى لِّلۡمُتَّقِينَ","2:163":"وَإِلَٰهُكُمۡ إِلَٰهٞ وَٰحِدٞۖ لَّآ إِلَٰهَ إِلَّا هُوَ ٱلرَّحۡمَٰنُ ٱلرَّحِيمُ","3:1":"الٓمٓ","3:2":"ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلۡحَيُّ ٱلۡقَيُّومُ","4:96":"دَرَجَٰتٖ مِّنۡهُ وَمَغۡفِرَةٗ وَرَحۡمَةٗۚ وَكَانَ ٱللَّهُ غَفُورٗا رَّحِيمًا","7:1":"الٓمٓصٓ","7:180":"وَلِلَّهِ ٱلۡأَسۡمَآءُ ٱلۡحُسۡنَىٰ فَٱدۡعُوهُ بِهَاۖ وَذَرُواْ ٱلَّذِينَ يُلۡحِدُونَ فِيٓ أَسۡمَـٰٓئِهِۦۚ سَيُجۡزَوۡنَ مَا كَانُواْ يَعۡمَلُونَ","11:41":"۞وَقَالَ ٱرۡكَبُواْ فِيهَا بِسۡمِ ٱللَّهِ مَجۡرٜىٰهَا وَمُرۡسَىٰهَآۚ إِنَّ رَبِّي لَغَفُورٞ رَّحِيمٞ","12:1":"الٓرۚ تِلۡكَ ءَايَٰتُ ٱلۡكِتَٰبِ ٱلۡمُبِينِ","13:1":"الٓمٓرۚ تِلۡكَ ءَايَٰتُ ٱلۡكِتَٰبِۗ وَٱلَّذِيٓ أُنزِلَ إِلَيۡكَ مِن رَّبِّكَ ٱلۡحَقُّ وَلَٰكِنَّ أَكۡثَرَ ٱلنَّاسِ لَا يُؤۡمِنُونَ","26:9":"وَإِنَّ رَبَّكَ لَهُوَ ٱلۡعَزِيزُ ٱلرَّحِيمُ","27:30":"إِنَّهُۥ مِن سُلَيۡمَٰنَ وَإِنَّهُۥ بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ","29:1":"الٓمٓ","29:2":"أَحَسِبَ ٱلنَّاسُ أَن يُتۡرَكُوٓاْ أَن يَقُولُوٓاْ ءَامَنَّا وَهُمۡ لَا يُفۡتَنُونَ","30:1":"الٓمٓ","30:2":"غُلِبَتِ ٱلرُّومُ","31:1":"الٓمٓ","31:2":"تِلۡكَ ءَايَٰتُ ٱلۡكِتَٰبِ ٱلۡحَكِيمِ","32:1":"الٓمٓ","32:2":"تَنزِيلُ ٱلۡكِتَٰبِ لَا رَيۡبَ فِيهِ مِن رَّبِّ ٱلۡعَٰلَمِينَ","34:2":"يَعۡلَمُ مَا يَلِجُ فِي ٱلۡأَرۡضِ وَمَا يَخۡرُجُ مِنۡهَا وَمَا يَنزِلُ مِنَ ٱلسَّمَآءِ وَمَا يَعۡرُجُ فِيهَاۚ وَهُوَ ٱلرَّحِيمُ ٱلۡغَفُورُ","41:2":"تَنزِيلٞ مِّنَ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ","49:11":"يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ لَا يَسۡخَرۡ قَوۡمٞ مِّن قَوۡمٍ عَسَىٰٓ أَن يَكُونُواْ خَيۡرٗا مِّنۡهُمۡ وَلَا نِسَآءٞ مِّن نِّسَآءٍ عَسَىٰٓ أَن يَكُنَّ خَيۡرٗا مِّنۡهُنَّۖ وَلَا تَلۡمِزُوٓاْ أَنفُسَكُمۡ وَلَا تَنَابَزُواْ بِٱلۡأَلۡقَٰبِۖ بِئۡسَ ٱلِٱسۡمُ ٱلۡفُسُوقُ بَعۡدَ ٱلۡإِيمَٰنِۚ وَمَن لَّمۡ يَتُبۡ فَأُوْلَـٰٓئِكَ هُمُ ٱلظَّـٰلِمُونَ","49:12":"يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ ٱجۡتَنِبُواْ كَثِيرٗا مِّنَ ٱلظَّنِّ إِنَّ بَعۡضَ ٱلظَّنِّ إِثۡمٞۖ وَلَا تَجَسَّسُواْ وَلَا يَغۡتَب بَّعۡضُكُم بَعۡضًاۚ أَيُحِبُّ أَحَدُكُمۡ أَن يَأۡكُلَ لَحۡمَ أَخِيهِ مَيۡتٗا فَكَرِهۡتُمُوهُۚ وَٱتَّقُواْ ٱللَّهَۚ إِنَّ ٱللَّهَ تَوَّابٞ رَّحِيمٞ","59:22":"هُوَ ٱللَّهُ ٱلَّذِي لَآ إِلَٰهَ إِلَّا هُوَۖ عَٰلِمُ ٱلۡغَيۡبِ وَٱلشَّهَٰدَةِۖ هُوَ ٱلرَّحۡمَٰنُ ٱلرَّحِيمُ"},"words":{"1:1":4,"2:1":1,"2:2":7,"2:163":9,"3:1":1,"3:2":7,"4:96":8,"7:1":1,"7:180":14,"11:41":11,"12:1":5,"13:1":15,"26:9":5,"27:30":8,"29:1":1,"29:2":10,"30:1":1,"30:2":2,"31:1":1,"31:2":4,"32:1":1,"32:2":8,"34:2":18,"41:2":4,"49:11":39,"49:12":31,"59:22":13},"fawatih":{"الم":[2,3,29,30,31,32],"المص":[7],"الر":[10,11,12,14,15],"المر":[13],"كهيعص":[19],"طه":[20],"طسم":[26,28],"طس":[27],"يس":[36],"ص":[38],"حم":[40,41,42,43,44,45,46],"عسق":[42],"ق":[50],"ن":[68]}}</script>
+<script>
+(function(){
+"use strict";
+const D = JSON.parse(document.getElementById('D').textContent);
+const $ = s => document.querySelector(s);
+const el = (t,c,h)=>{const e=document.createElement(t); if(c)e.className=c;
+  if(h!==undefined)e.innerHTML=h; return e;};
+const stage=$('#stage'), field=$('#field'), paths=$('#paths'), cons=$('#cons');
+const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+/* ============ text: rendered from citations, never stored as strings ============ */
+const T = (s,a) => D.text[s+':'+a] || '';
+const WC = (s,a) => D.words[s+':'+a] || 0;
+function span(s,a,w0,w1){
+  const w = T(s,a).replace(/۞/g,'').split(/\s+/).filter(Boolean);
+  return w.slice(w0-1,w1);
+}
+const cite = (s,a,w0,w1) => s+':'+a+':'+w0+(w1>w0?'-'+w1:'');
+
+/* ============ audio — the instrument sounds like what it is made of ============ */
+const Audio_ = {
+  ctx:null, on:true,
+  unlock(){ if(!this.ctx){ try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } },
+  env(node, t0, a, d, peak){
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(peak, t0+a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+a+d);
+    node.connect(g); g.connect(this.ctx.destination); return g;
+  },
+  /* bits → pitch. A 15-bit stitch really does sound clearer than a 9-bit one. */
+  freq(bits){ const b=Math.max(7,Math.min(16,bits||10)); return 220*Math.pow(2,(b-7)/4.5); },
+  ping(bits){ if(!this.on||!this.ctx) return;
+    const t=this.ctx.currentTime, f=this.freq(bits);
+    [[f,0.09],[f*2.01,0.035],[f*3.02,0.016]].forEach(([fr,pk])=>{
+      const o=this.ctx.createOscillator(); o.type='triangle'; o.frequency.value=fr;
+      this.env(o,t,0.004,0.5,pk); o.start(t); o.stop(t+0.6);
+    });
+  },
+  draw(bits,dur){ if(!this.on||!this.ctx) return;
+    const t=this.ctx.currentTime, f=this.freq(bits);
+    const o=this.ctx.createOscillator(); o.type='sine';
+    o.frequency.setValueAtTime(f*0.72,t); o.frequency.linearRampToValueAtTime(f,t+dur);
+    const lp=this.ctx.createBiquadFilter(); lp.type='lowpass';
+    lp.frequency.setValueAtTime(600,t); lp.frequency.linearRampToValueAtTime(3400,t+dur);
+    o.connect(lp); this.env(lp,t,dur*0.35,dur*0.65,0.055); o.start(t); o.stop(t+dur+0.1);
+  },
+  lock(){ if(!this.on||!this.ctx) return;
+    const t=this.ctx.currentTime;
+    const o=this.ctx.createOscillator(); o.type='sine';
+    o.frequency.setValueAtTime(180,t); o.frequency.exponentialRampToValueAtTime(52,t+0.11);
+    this.env(o,t,0.002,0.13,0.2); o.start(t); o.stop(t+0.2);
+  },
+  press(){ if(!this.on||!this.ctx) return;
+    const t=this.ctx.currentTime;
+    const o=this.ctx.createOscillator(); o.type='sine';
+    o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(38,t+0.3);
+    this.env(o,t,0.004,0.42,0.32); o.start(t); o.stop(t+0.5);
+    const n=this.ctx.createBufferSource();
+    const buf=this.ctx.createBuffer(1,this.ctx.sampleRate*0.3,this.ctx.sampleRate);
+    const ch=buf.getChannelData(0);
+    for(let i=0;i<ch.length;i++) ch[i]=(Math.random()*2-1)*Math.pow(1-i/ch.length,3);
+    n.buffer=buf; const bp=this.ctx.createBiquadFilter(); bp.type='bandpass';
+    bp.frequency.value=2100; n.connect(bp); this.env(bp,t+0.02,0.01,0.26,0.09); n.start(t+0.02);
+  }
+};
+
+/* ============ constellation field ============ */
+function drawCons(){
+  const w=field.clientWidth, h=field.clientHeight;
+  cons.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  let s='', pts=[];
+  for(let i=0;i<34;i++) pts.push([Math.random()*w, Math.random()*h]);
+  pts.forEach((p,i)=>{
+    const near = pts.map((q,j)=>[j,Math.hypot(p[0]-q[0],p[1]-q[1])])
+                    .filter(x=>x[0]!==i).sort((a,b)=>a[1]-b[1]).slice(0,2);
+    near.forEach(([j])=>{ if(j>i) s+=`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${pts[j][0].toFixed(1)}" y2="${pts[j][1].toFixed(1)}" stroke="var(--brass)" stroke-width=".5" opacity=".16"/>`; });
+    s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${(Math.random()*1.1+.5).toFixed(1)}" fill="var(--brass)" opacity="${(Math.random()*.2+.14).toFixed(2)}"/>`;
+  });
+  cons.innerHTML=s;
+}
+function grain(){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="4"/></filter><rect width="180" height="180" filter="url(#n)" opacity=".42"/></svg>`;
+  $('#grain').style.background=`url("data:image/svg+xml;base64,${btoa(svg)}")`;
+}
+
+/* ============ rendering a رتلة — apparatus in the margin, never in the line ============ */
+function retlah(role, spans, opts){
+  opts = opts||{};
+  const r = el('div','row'+(opts.anchor?' anchor':''));
+  if(role) r.appendChild(el('span','role', role));
+  const line = el('div','line emb q');
+  spans.forEach((sp,si)=>{
+    if(si) line.appendChild(document.createTextNode(' '));
+    span(sp[0],sp[1],sp[2],sp[3]).forEach((word,wi)=>{
+      if(wi) line.appendChild(document.createTextNode(' '));
+      const w = el('span','w', word);
+      w.dataset.k = sp[0]+':'+sp[1]+':'+(sp[2]+wi);
+      line.appendChild(w);
+    });
+  });
+  r.appendChild(line);
+  r.appendChild(el('div','cit', '⟨'+spans.map(s=>cite(s[0],s[1],s[2],s[3])).join(', ')+'⟩'));
+  stage.appendChild(r);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>r.classList.add('in')));
+  return r;
+}
+
+/* ============ nodes and the traced path ============ */
+let NODES=[];
+function nodeOn(row, idx, kind, bits, peak){
+  const ws = row.querySelectorAll('.w');
+  const w = ws[Math.min(idx, ws.length-1)];
+  if(!w) return null;
+  const fr = field.getBoundingClientRect(), wr = w.getBoundingClientRect();
+  const n = el('div','node '+(kind||'')+' '+(peak?'peak':'live'));
+  n.style.left = (wr.left - fr.left + wr.width*0.5)+'px';
+  n.style.top  = (wr.top  - fr.top  + wr.height*0.28)+'px';
+  n.style.setProperty('--p', (2.0 + Math.random()*1.8).toFixed(2)+'s');
+  field.appendChild(n); NODES.push(n);
+  if(peak) Audio_.ping(bits);
+  return n;
+}
+function trace(a, b, bits, ms){
+  if(!a||!b) return Promise.resolve();
+  const fr = field.getBoundingClientRect();
+  const p1 = a.getBoundingClientRect(), p2 = b.getBoundingClientRect();
+  const x1=p1.left-fr.left+4.5, y1=p1.top-fr.top+4.5;
+  const x2=p2.left-fr.left+4.5, y2=p2.top-fr.top+4.5;
+  const mx=(x1+x2)/2 + (y2-y1)*0.18, my=(y1+y2)/2 - (x2-x1)*0.18;
+  paths.setAttribute('viewBox',`0 0 ${field.clientWidth} ${field.clientHeight}`);
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d',`M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+  path.setAttribute('fill','none'); path.setAttribute('stroke','var(--nassi)');
+  path.setAttribute('stroke-width','1.4'); path.setAttribute('stroke-linecap','round');
+  paths.appendChild(path);
+  const L=path.getTotalLength();
+  path.style.strokeDasharray=L; path.style.strokeDashoffset=L;
+  path.style.filter='drop-shadow(0 0 4px var(--glow))';
+  Audio_.draw(bits, ms/1000);
+  if(reduce){ path.style.strokeDashoffset=0; return wait(120); }
+  path.style.transition=`stroke-dashoffset ${ms}ms cubic-bezier(.4,0,.3,1)`;
+  requestAnimationFrame(()=>{ path.style.strokeDashoffset=0; });
+  return wait(ms);
+}
+function clearField(){ stage.textContent=''; paths.textContent='';
+  NODES.forEach(n=>n.remove()); NODES=[]; }
+
+/* ============ timing ============ */
+let PAUSED=false, STEPQ=null;
+const wait = ms => new Promise(res=>{
+  let t0=Date.now(), left=ms, id=null;
+  const tick=()=>{ if(PAUSED){ left-=(Date.now()-t0); id=setTimeout(tick,90); return; }
+    t0=Date.now(); id=setTimeout(()=>{ if(PAUSED){ left=0; tick(); } else res(); }, Math.max(0,left)); };
+  if(reduce) return res();
+  tick();
+});
+function progress(p){ $('#fill').style.width=(p*100)+'%'; }
+function stageName(n){ $('#stage-name').textContent=n; }
+
+/* ============ the state machine ============ */
+const SEQ=['سُكُون','انْفِصَال','انْجِرَاء','الوِجْهَة','مِيقَات','تَرْكِيب','المُرْسَى','خَتْم','مَجْرَى'];
+let ST='سُكُون', WIJHA=null, BUILT=[];
+
+async function go(s){ ST=s; stageName(s); progress(SEQ.indexOf(s)/(SEQ.length-1));
+  clearField();
+  if(s==='انْفِصَال')  return infisal();
+  if(s==='انْجِرَاء')  return injira();
+  if(s==='الوِجْهَة')  return wijha();
+  if(s==='مِيقَات')    return miqat();
+  if(s==='تَرْكِيب')   return tarkib();
+  if(s==='المُرْسَى')  return mursa();
+  if(s==='خَتْم')      return khatm();
+  if(s==='مَجْرَى')    return majra();
+}
+
+/* ---- ١ انْفِصَال : the familiar line comes apart ---- */
+async function infisal(){
+  const r = retlah(null, [[1,1,1,4]], {anchor:true});
+  await wait(700);
+  r.querySelectorAll('.w').forEach((w,i)=>{
+    w.style.transition='margin .9s cubic-bezier(.3,0,.2,1)';
+    w.style.margin='0 '+(3+i*1.5)+'px';
+  });
+  await wait(500);
+  [0,1,2,3].forEach(i=>nodeOn(r,i,'',12,false));
+  Audio_.ping(11);
+  await wait(1100);
+  go('انْجِرَاء');
+}
+
+/* ---- ٢ انْجِرَاء : the course drives itself ---- */
+async function injira(){
+  const anchor = retlah('مَحْمِل', [[1,1,1,4]], {anchor:true});
+  const an = nodeOn(anchor, 0, '', 15, true);
+  await wait(900);
+  for(let i=0;i<D.basm.length;i++){
+    if(!D.basm[i].opts.length) continue;
+    const o = D.basm[i].opts[0], alt = D.basm[i].opts.slice(1,3);
+    const r = retlah('توسّع', [[1,1,D.basm[i].w,D.basm[i].w], [o.to[0],o.to[1],o.span[0],o.span[1]]]);
+    const from = nodeOn(r, 0, '', o.bits, false);
+    const to   = nodeOn(r, 1, o.ty==='نصّي'?'':'i', o.bits, true);
+    /* the instrument visibly considers, then commits */
+    if(alt.length && !reduce){
+      const ghosts = alt.map(a=>nodeOn(r, 1, 'i', a.bits, false));
+      await wait(520);
+      ghosts.forEach(gn=>{ gn.style.transition='opacity .5s'; gn.style.opacity='0';
+        setTimeout(()=>gn.remove(),520); });
+    }
+    await trace(from, to, o.bits, 1500);
+    await wait(560);
+    if(ST!=='انْجِرَاء') return;
+  }
+  await wait(700);
+  go('الوِجْهَة');
+}
+
+/* ---- ٣ الوِجْهَة : a facing, not an identity ---- */
+function wijha(){
+  const p = el('div','panel');
+  p.appendChild(el('h2','','الوِجْهَة'));
+  p.appendChild(el('p','lede',
+    '<span class="ar" style="font-size:15px">وَلِكُلٍّ وِجْهَةٌ هُوَ مُوَلِّيهَا</span> · 2:148<br><br>'+
+    'Not who you are — <b>which addressal you are entering through</b>. It seeds where the '+
+    'instrument begins and can be changed at any time. A narrow facing reaches few places with '+
+    'great specificity; a wide one touches most of the muṣḥaf. Neither is better.'));
+  D.wijha.forEach(w=>{
+    const b = el('button','card'+(w.default?' dflt':''));
+    b.appendChild(el('span','a', w.ar));
+    b.appendChild(el('span','b', w.n+' · '+w.bits+'b'));
+    b.appendChild(el('span','band '+w.band, w.band));
+    b.onclick = ()=>{ WIJHA=w; Audio_.ping(w.bits); p.remove(); go('مِيقَات'); };
+    p.appendChild(b);
+  });
+  field.appendChild(p);
+}
+
+/* ---- ٤ مِيقَات : الٓمٓ as one body ---- */
+async function miqat(){
+  const r = retlah(null, [[2,1,1,1]], {anchor:true});
+  const glyph = r.querySelector('.w');
+  glyph.style.display='inline-block';
+  if(!reduce){
+    glyph.style.transition='letter-spacing 1.4s cubic-bezier(.3,0,.2,1), filter .8s';
+    glyph.style.letterSpacing='16px'; glyph.style.filter='blur(.4px)';
+    await wait(1500);
+    glyph.style.letterSpacing='0'; glyph.style.filter='none';
+    await wait(900);
+  }
+  Audio_.lock();
+  nodeOn(r, 0, '', 15, true);
+  await wait(800);
+  for(const d of D.alm){
+    if(ST!=='مِيقَات') return;
+    const row = retlah('دُخُول', [[2,1,1,1],[d.to[0],d.to[1],d.span[0],d.span[1]]]);
+    const a=nodeOn(row,0,'',15,false), b=nodeOn(row,1,'',15,true);
+    await trace(a,b,15.2,900);
+    await wait(330);
+  }
+  await wait(600);
+  if(ST!=='مِيقَات') return;
+  const c = D.cross;
+  const x = retlah('جَمْع', [[c.alr.to[0],c.alr.to[1],1,1],[c.almr.to[0],c.almr.to[1],c.almr.span[0],c.almr.span[1]]]);
+  const xa=nodeOn(x,0,'',15,false), xb=nodeOn(x,1,'',15,true);
+  await trace(xa,xb,15.2,1200);
+  const h = el('div','hint');
+  h.innerHTML='<span class="ar">الجَمْعُ لا يَجوزُ إلا مُثبَتًا</span><br>'+
+    'Of the 91 possible pairs of letter-clusters, exactly <b>two</b> unions are themselves '+
+    'attested. You have just watched one. The other — <span class="ar">الٓمٓصٓ</span> at al-Aʿrāf — '+
+    'is still unvisited.';
+  stage.appendChild(h);
+  await wait(2400);
+  if(ST==='مِيقَات') go('تَرْكِيب');
+}
+
+/* ---- ٥ تَرْكِيب : the user assembles ---- */
+function tarkib(){
+  BUILT=[]; let step=0;
+  const live = D.basm.filter(b=>b.opts.length);
+  function draw(){
+    clearField();
+    const p = el('div','panel');
+    p.appendChild(el('h2','','تَرْكِيب'));
+    p.appendChild(el('p','lede',
+      'رَتْلَة '+(step+1)+' من '+live.length+' — choose where this word carries. '+
+      'Every option below is a real branch with its own weight; nothing is suggested that '+
+      'cannot be cited.'));
+    const b = live[step];
+    const head = el('div','opt'); head.style.borderColor='var(--brass)';
+    head.style.background='none'; head.style.cursor='default';
+    head.appendChild(el('div','t emb', span(1,1,b.w,b.w)[0]));
+    head.appendChild(el('div','m','<span>مَحْمِل · anchor</span><span class="bb">'+b.cite+'</span>'));
+    p.appendChild(head);
+    b.opts.forEach(o=>{
+      const btn = el('button','opt');
+      btn.appendChild(el('div','t emb', span(o.to[0],o.to[1],o.span[0],o.span[1]).join(' ')));
+      btn.appendChild(el('div','m',
+        '<span class="ty '+(o.ty==='نصّي'?'ty-n':'ty-i')+'">'+o.ty+'</span>'+
+        '<span class="bb">'+o.bits+' bits</span>'+
+        '<span>'+o.to[0]+':'+o.to[1]+'</span>'+
+        '<span style="opacity:.7">'+o.sabab+'</span>'));
+      btn.onclick=()=>{
+        BUILT[step]={w:b.w, cite:b.cite, o:o}; Audio_.ping(o.bits);
+        step++; if(step<live.length) draw(); else { p.remove(); go('المُرْسَى'); }
+      };
+      p.appendChild(btn);
+    });
+    if(step>0){ const bk=el('button','act ghost','رُجُوع · back');
+      bk.onclick=()=>{ step--; draw(); }; p.appendChild(bk); }
+    field.appendChild(p);
+  }
+  draw();
+}
+
+/* ---- ٦ المُرْسَى : the scroll before sealing ---- */
+function mursa(){
+  clearField();
+  const total = BUILT.reduce((s,b)=>s+b.o.bits,0);
+  retlah('مَحْمِل', [[1,1,1,4]], {anchor:true});
+  BUILT.forEach(b=>retlah('توسّع', [[1,1,b.w,b.w],[b.o.to[0],b.o.to[1],b.o.span[0],b.o.span[1]]]));
+  const h = el('div','hint');
+  h.innerHTML = '<b style="color:var(--brass)">'+total.toFixed(1)+' bits</b> · '+
+    BUILT.length+' رتلة · '+(WIJHA?WIJHA.ar:'—')+
+    '<br><span class="ar">ما نَفِدَتْ كَلِمَاتُ اللَّه</span> — nothing stands between one line and '+
+    'the next but the text. The citations are apparatus; they sit in the margin.';
+  stage.appendChild(h);
+  const seal = el('button','act','اخْتِمِ الطَّرْس · seal the scroll');
+  seal.onclick=()=>go('خَتْم');
+  const back = el('button','act ghost','عُدْ وَبَدِّل · go back and swap');
+  back.onclick=()=>go('تَرْكِيب');
+  stage.appendChild(seal); stage.appendChild(back);
+}
+
+/* ---- ٧ خَتْم ---- */
+async function khatm(){
+  const total = BUILT.reduce((s,b)=>s+b.o.bits,0);
+  $('#stampn').textContent = total.toFixed(1)+' BITS';
+  $('#seal').classList.add('on');
+  await wait(760); Audio_.press();
+  await wait(1500);
+  $('#seal').classList.remove('on');
+  go('مَجْرَى');
+}
+
+/* ---- ٨ مَجْرَى ---- */
+function majra(){
+  clearField();
+  const p = el('div','panel');
+  p.appendChild(el('h2','','المَجْرَى'));
+  p.appendChild(el('p','lede',
+    'Your scroll is sealed and is now the root of the instrument. '+
+    '<span class="ar" style="font-size:15px">بِسْمِ ٱللَّهِ مَجْر۪ىٰهَا وَمُرْسَىٰهَآ</span> · 11:41'));
+  const total = BUILT.reduce((s,b)=>s+b.o.bits,0);
+  const c = el('div','opt'); c.style.cursor='default'; c.style.borderColor='var(--brass)';
+  c.appendChild(el('div','t emb', span(1,1,1,4).join(' ')));
+  c.appendChild(el('div','m','<span class="bb">'+total.toFixed(1)+' bits</span><span>'+
+    BUILT.length+' رتلة</span><span>'+(WIJHA?WIJHA.ar:'')+'</span>'));
+  p.appendChild(c);
+  BUILT.forEach(b=>{
+    const o=el('div','opt'); o.style.cursor='default';
+    o.appendChild(el('div','t emb', span(b.o.to[0],b.o.to[1],b.o.span[0],b.o.span[1]).join(' ')));
+    o.appendChild(el('div','m','<span class="bb">'+b.o.bits+' bits</span><span>'+
+      b.o.to[0]+':'+b.o.to[1]+'</span>'));
+    p.appendChild(o);
+  });
+  const again = el('button','act ghost','ارْكَبْ مِنْ جَدِيد · board again');
+  again.onclick=()=>{ p.remove(); BUILT=[]; WIJHA=null;
+    $('#sukun').style.display='flex'; ST='سُكُون'; stageName('سُكُون'); progress(0); };
+  p.appendChild(again);
+  field.appendChild(p);
+}
+
+/* ============ chrome ============ */
+$('#sukun').onclick = function(){
+  Audio_.unlock(); this.style.transition='opacity .8s'; this.style.opacity='0';
+  setTimeout(()=>{ this.style.display='none'; this.style.opacity='1'; }, 800);
+  go('انْفِصَال');
+};
+$('#pause').onclick = function(){ PAUSED=!PAUSED; this.textContent = PAUSED?'▶':'❚❚'; };
+$('#step').onclick = ()=>{ const i=SEQ.indexOf(ST);
+  if(['انْفِصَال','انْجِرَاء','مِيقَات'].includes(ST)) go(SEQ[i+1]); };
+$('#mute').onclick = function(){ Audio_.on=!Audio_.on;
+  this.style.opacity = Audio_.on?'1':'.4'; this.textContent = Audio_.on?'صَوْت':'صَمْت'; };
+$('#theme').onclick = ()=>{ const r=document.documentElement;
+  r.setAttribute('data-theme', r.getAttribute('data-theme')==='dark'?'light':'dark');
+  drawCons(); };
+
+document.documentElement.setAttribute('data-theme','light');
+grain(); drawCons();
+addEventListener('resize', ()=>{ drawCons(); });
+})();
+</script>
