@@ -51,7 +51,7 @@ class SababIndex:
         out=[]
         for j in (i-1, i+1):
             if 0 <= j < len(self.order):
-                out.append((self.order[j], NASSI, 'adjacent'))
+                out.append((self.order[j], NASSI, 'adjacent', 2))
         return out
 
     def takrar(self, k, use_root=False):
@@ -60,35 +60,44 @@ class SababIndex:
         keys = v['root'] if use_root else v['lem']
         idx  = self.by_root if use_root else self.by_lem
         for key in keys:
-            for t in idx[key]:
-                if t != k: out.append((t, NASSI, f"{'root' if use_root else 'lem'}:{key}"))
+            bucket = idx[key]
+            for t in bucket:
+                if t != k:
+                    out.append((t, NASSI, f"{'root' if use_root else 'lem'}:{key}", len(bucket)))
         return out
 
     def ishtimal(self, k):
         """اشتمال حرفي — letter-set containment between fawātiḥ clusters."""
         v = self.words[k]
         if not v['inl']: return []
-        me = set(v['rasm']); out=[]
+        me = set(v['rasm']); hits=[]
         for other, suras in self.fawatih.items():
             if other == v['rasm']: continue
             os_ = set(other)
             rel = ('⊂' if me < os_ else '⊃' if me > os_ else None)
             if rel:
                 for s in suras:
-                    out.append(((s,1,1), NASSI, f"{v['rasm']} {rel} {other}"))
-        return out
+                    hits.append(((s,1,1), NASSI, f"{v['rasm']} {rel} {other}"))
+        return [(t,ty,ev,len(hits)) for t,ty,ev in hits]
 
-    def sigha(self, k, n=3):
-        """صيغة مشتركة — the same n-word formula occurring elsewhere."""
+    def sigha(self, k, n=4):
+        """صيغة مشتركة — shared formula, collected across EVERY width.
+
+        A longer formula is more specific but reaches fewer places; a shorter one
+        reaches more. Neither dominates, so both are offered and each candidate
+        carries the weight of its own width. Breaking at the first matching width
+        (the earlier behaviour) silently hid the most interesting destinations —
+        it lost 11:41 بِسْمِ ٱللَّهِ مَجْر۪ىٰهَا وَمُرْسَىٰهَآ from the Basmalah entirely."""
         i = self.pos_ix[k]; out=[]
         for nn in range(n, 1, -1):
             seq = self.order[i:i+nn]
             if len(seq) < nn or len({(x[0],x[1]) for x in seq}) != 1: continue
             key = ' '.join(self.words[x]['rasm'] for x in seq)
-            for hit in self.ngrams.get(key, ()):
+            group = self.ngrams.get(key, ())
+            for hit in group:
                 t = hit[:3]
-                if t != k: out.append((t, NASSI, f"formula[{nn}]:{key}"))
-            if out: break
+                if t != k:
+                    out.append((t, NASSI, f"formula[{nn}]:{key}", len(group)))
         return out
 
     def tamathul(self, k, n=3):
@@ -103,7 +112,7 @@ class SababIndex:
             if len({(x[0],x[1]) for x in cand}) != 1: continue
             if tuple(tuple(self.words[x]['pos']) for x in cand) == pat and cand[0]!=k:
                 out.append((cand[0], NASSI, 'pos-pattern'))
-        return out
+        return [(t,ty,ev,len(out)) for t,ty,ev in out]
 
     def tajanus(self, k, maxd=1):
         """تجانس صوتي — consonantal-skeleton resonance.  PERCEPTUAL: not settled
@@ -118,7 +127,7 @@ class SababIndex:
             # subsequence-containment on the skeleton
             if _lev(u,v) <= maxd:
                 out.append((t, IDRAKI, f"rasm~{v}/{u}"))
-        return out
+        return [(t,ty,ev,len(out)) for t,ty,ev in out]
 
 def _lev(a,b):
     if a==b: return 0

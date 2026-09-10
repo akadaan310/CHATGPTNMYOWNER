@@ -27,13 +27,12 @@ class Generator:
                       ('تكرار لفظي (جذر)', self.S.takrar(k,True)),
                       ('تكرار لفظي (لفظ)', self.S.takrar(k,False))]
             for name, hits in groups:
-                if not hits: continue
-                bits = self.w(len(hits))
-                if bits < self.min_bits: continue
-                for t,typ,ev in hits:
+                for t,typ,ev,cnt in hits:
+                    bits = self.w(cnt)               # weight of THIS candidate's own set
+                    if bits < self.min_bits: continue
                     if t[0] == s and t[1] == a: continue
                     if exclude_sura and t[0] in exclude_sura: continue
-                    key = (t[0], t[1], ev)
+                    key = (t[0], t[1])
                     if key not in cand or bits > cand[key][3]:
                         cand[key] = (t, name, ev, bits, typ)
         return sorted(cand.values(), key=lambda x:-x[3])
