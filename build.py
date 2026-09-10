@@ -9,3 +9,4 @@ def inject(tpl, data, out, token):
 print('build:')
 inject('app.html','bundle.json','mirtal.html','__BUNDLE__')
 inject('awwal.html','awwal.json','rukub.html','__DATA__')
+inject('majra.html','majra.json','navigator.html','__DATA__')

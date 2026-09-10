@@ -1,0 +1,319 @@
+<title>مَجْرَى الرَّتْل</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* A single committed visual world: a dark reading instrument. The Arabic is the
+   only thing with full contrast; everything else recedes to apparatus. */
+:root{
+  --bg:#0B0B0C; --raise:#111112; --sheet:#0E0E0F;
+  --line:#1C1C1E; --line2:#161617;
+  --tx:#F2F0EC; --tx2:#8B8884; --tx3:#57555200; --tx3:#575552;
+  --gold:#C6A664; --gold-dim:#C6A66422;
+  --sel:#F2F0EC0A;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--bg); color:var(--tx);
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility}
+button{font:inherit; color:inherit; background:none; border:none; cursor:pointer; padding:0}
+:focus-visible{outline:1px solid var(--gold); outline-offset:3px}
+.q{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif;
+  direction:rtl}
+.lbl{font-size:9px; letter-spacing:.19em; text-transform:uppercase; color:var(--tx3)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ============ frame ============ */
+#app{display:grid; grid-template-columns:1fr; min-height:100vh}
+@media (min-width:940px){ #app{grid-template-columns:1fr 420px} }
+
+/* ---- top ---- */
+#bar{position:sticky; top:0; z-index:20; background:#0B0B0CF2;
+  backdrop-filter:blur(14px); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:14px; padding:11px 20px}
+#bar .s{font-family:"Amiri Quran",Amiri,serif; direction:rtl; font-size:19px;
+  color:var(--tx); margin-inline-end:auto; letter-spacing:0}
+#bar button.t{padding:6px 9px; color:var(--tx2)}
+#bar button.t:hover{color:var(--gold)}
+
+/* ---- muṣḥaf canvas ---- */
+#mushaf{padding:14px 20px 70vh; max-width:760px; margin:0 auto; width:100%}
+.v{position:relative; display:grid; grid-template-columns:30px 1fr; gap:0 14px;
+  padding:14px 0 15px; border-bottom:1px solid var(--line2); cursor:pointer;
+  transition:background .16s}
+.v:hover{background:var(--sel)}
+.v .n{font-size:10px; color:var(--tx3); padding-top:14px; text-align:center;
+  font-variant-numeric:tabular-nums; letter-spacing:.04em}
+.v .t{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif;
+  direction:rtl; font-size:clamp(23px,5.2vw,29px); line-height:2.35; color:var(--tx);
+  word-spacing:.02em}
+.v[aria-current="true"]{background:#C6A6640D}
+.v[aria-current="true"] .n{color:var(--gold)}
+.v[aria-current="true"]::before{content:''; position:absolute; inset-inline-start:-20px;
+  top:0; bottom:0; width:2px; background:var(--gold)}
+.v.trace{background:#F2F0EC08}
+.v.trace .n{color:var(--tx2)}
+.v.dim .t{opacity:.4}
+.v .k{position:absolute; inset-inline-end:0; top:10px; font-size:9px; letter-spacing:.14em;
+  color:var(--gold); opacity:0; transition:opacity .2s}
+.v[aria-current="true"] .k{opacity:1}
+
+#surahhead{padding:44px 0 26px; text-align:center; border-bottom:1px solid var(--line)}
+#surahhead .a{font-family:"Amiri Quran",Amiri,serif; font-size:31px; direction:rtl;
+  color:var(--tx); line-height:1.5}
+#surahhead .m{margin-top:9px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap}
+
+/* ============ the scroll panel ============ */
+#panel{background:var(--sheet); border-inline-start:1px solid var(--line);
+  display:flex; flex-direction:column}
+@media (max-width:939px){
+  #panel{position:fixed; inset:auto 0 0 0; z-index:30; max-height:62vh;
+    border-inline-start:none; border-top:1px solid var(--line);
+    box-shadow:0 -30px 70px #000000cc; transform:translateY(101%);
+    transition:transform .34s cubic-bezier(.32,.72,0,1)}
+  #panel.open{transform:none}
+  #grip{height:26px; flex:none; display:flex; align-items:center; justify-content:center}
+  #grip::before{content:''; width:34px; height:3px; border-radius:2px; background:var(--line)}
+}
+@media (min-width:940px){ #grip{display:none} #panel{position:sticky; top:0; height:100vh} }
+
+#phead{padding:0 20px 14px; border-bottom:1px solid var(--line); flex:none}
+#phead .row{display:flex; align-items:baseline; gap:10px; margin-bottom:9px}
+#phead .cit{font-size:10px; color:var(--gold); letter-spacing:.05em}
+#phead .anch{font-family:"Amiri Quran",Amiri,serif; direction:rtl; font-size:22px;
+  line-height:1.9; color:var(--tx); margin:2px 0 10px}
+#ctl{display:flex; gap:7px; flex-wrap:wrap; align-items:center}
+#ctl button{padding:5px 10px; border:1px solid var(--line); color:var(--tx2);
+  font-size:9px; letter-spacing:.14em; text-transform:uppercase}
+#ctl button:hover{border-color:var(--tx3); color:var(--tx)}
+#ctl button[aria-pressed="true"]{border-color:var(--gold); color:var(--gold);
+  background:var(--gold-dim)}
+
+#scroll{flex:1; overflow-y:auto; padding:4px 20px 34px}
+.step{padding:15px 0 16px; border-bottom:1px solid var(--line2)}
+.step:last-child{border-bottom:none}
+.step .hd{display:flex; align-items:center; gap:9px; margin-bottom:7px}
+.step .tier{font-size:8.5px; letter-spacing:.15em; text-transform:uppercase;
+  padding:2px 7px; border:1px solid var(--line); color:var(--tx3)}
+.step.cross .tier{border-color:var(--gold); color:var(--gold)}
+.step .sc{font-size:9.5px; color:var(--tx3); margin-inline-start:auto;
+  font-variant-numeric:tabular-nums; letter-spacing:.04em}
+.step .t{font-family:"Amiri Quran",Amiri,"Noto Naskh Arabic","Scheherazade New",serif;
+  direction:rtl; font-size:21px; line-height:2.1; color:var(--tx); cursor:pointer}
+.step .t:hover{color:var(--gold)}
+.step .ft{display:flex; gap:11px; margin-top:5px; align-items:center; flex-wrap:wrap}
+.step .ft .c{font-size:9.5px; color:var(--gold); letter-spacing:.04em}
+.step .ft .e{font-size:9px; color:var(--tx3); letter-spacing:.03em}
+.step.cross{position:relative}
+.step.cross::before{content:''; position:absolute; inset-inline-start:-20px; top:0;
+  bottom:0; width:1px; background:var(--gold); opacity:.6}
+
+.empty{padding:34px 0; color:var(--tx3); font-size:11px; line-height:1.9;
+  letter-spacing:.03em}
+.empty .ar{font-family:"Amiri Quran",Amiri,serif; direction:rtl; font-size:17px;
+  color:var(--tx2); display:block; margin-bottom:11px; line-height:1.9}
+
+/* ============ sūrah index ============ */
+#idx{position:fixed; inset:0; z-index:50; background:#0B0B0CFA; display:none;
+  flex-direction:column; padding:16px 20px 30px}
+#idx.on{display:flex}
+#idx .h{display:flex; align-items:center; gap:12px; padding-bottom:13px;
+  border-bottom:1px solid var(--line)}
+#idx .g{flex:1; overflow-y:auto; display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(146px,1fr)); gap:1px; margin-top:1px}
+#idx .g button{display:flex; align-items:baseline; gap:9px; padding:11px 12px;
+  text-align:start; background:var(--raise)}
+#idx .g button:hover{background:#1A1A1C}
+#idx .g .n{font-size:9.5px; color:var(--tx3); min-width:20px; font-variant-numeric:tabular-nums}
+#idx .g .a{font-family:"Amiri Quran",Amiri,serif; direction:rtl; font-size:17px; color:var(--tx)}
+</style>
+
+<div id="app">
+  <div>
+    <div id="bar">
+      <span class="s" id="sname">الفاتحة</span>
+      <button class="t" id="openidx">الفهرس</button>
+      <button class="t" id="clear">إلغاء</button>
+    </div>
+    <div id="mushaf"></div>
+  </div>
+
+  <aside id="panel">
+    <div id="grip"></div>
+    <div id="phead">
+      <div class="row"><span class="lbl">مَحْمِل · anchor</span><span class="cit" id="acit"></span></div>
+      <div class="anch q" id="atext"></div>
+      <div id="ctl">
+        <button id="d3" aria-pressed="true">٣ رتلات</button>
+        <button id="d6">٦</button>
+        <button id="d10">١٠</button>
+        <button id="loc" aria-pressed="true">جِوَار أوّلًا</button>
+      </div>
+    </div>
+    <div id="scroll"></div>
+  </aside>
+</div>
+
+<div id="idx">
+  <div class="h"><span class="lbl" style="margin-inline-end:auto">١١٤ سُورَة</span>
+    <button class="t" id="closeidx" style="color:var(--tx2)">إغلاق</button></div>
+  <div class="g" id="idxg"></div>
+</div>
+
+<script id="D" type="application/json">__DATA__</script>
+<script>
+(function(){
+"use strict";
+const D = JSON.parse(document.getElementById('D').textContent);
+const $ = s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t); if(c)e.className=c;
+  if(h!==undefined)e.innerHTML=h; return e;};
+
+const TIER=['مُجَاوِر','جِوَار','سُورَة','عُبُور'];
+const SABAB=['تجاور مصحفي','جِوَار','صيغة مشتركة','تكرار لفظي (جذر)','تكرار لفظي (لفظ)','اشتمال حرفي'];
+const CROSS=3;
+
+const T=(s,a)=>(D.text[s-1]||[])[a-1]||'';
+const nAyat=s=>(D.text[s-1]||[]).length;
+const edgesOf=(s,a)=>D.edges[s+':'+a]||[];
+
+let SURA=1, ANCHOR=null, DEPTH=3, LOCAL=true, TRACE=new Set();
+
+/* ============ the muṣḥaf canvas ============ */
+function renderSurah(s, focus){
+  SURA=s; const [ar,en]=D.names[s-1];
+  $('#sname').textContent=ar;
+  const m=$('#mushaf'); m.textContent='';
+  const h=el('div'); h.id='surahhead';
+  h.appendChild(el('div','a', ar));
+  const meta=el('div','m');
+  [en, 'سُورَة '+s, nAyat(s)+' آية'].forEach(x=>meta.appendChild(el('span','lbl',x)));
+  h.appendChild(meta); m.appendChild(h);
+  for(let a=1;a<=nAyat(s);a++){
+    const v=el('div','v'); v.dataset.a=a; v.id='v'+s+'_'+a;
+    v.appendChild(el('div','n', a));
+    v.appendChild(el('div','t', T(s,a)));
+    v.appendChild(el('div','k','مَحْمِل'));
+    v.setAttribute('role','button'); v.tabIndex=0;
+    v.onclick=()=>lock(s,a);
+    v.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); lock(s,a); } };
+    m.appendChild(v);
+  }
+  paint();
+  if(focus) jump(s,focus,false);
+}
+function paint(){
+  document.querySelectorAll('.v').forEach(v=>{
+    const a=+v.dataset.a;
+    v.removeAttribute('aria-current'); v.classList.remove('trace','dim');
+    if(ANCHOR && ANCHOR[0]===SURA && ANCHOR[1]===a) v.setAttribute('aria-current','true');
+    else if(TRACE.has(SURA+':'+a)) v.classList.add('trace');
+    else if(ANCHOR) v.classList.add('dim');
+  });
+}
+function jump(s,a,smooth){
+  if(s!==SURA){ renderSurah(s,a); return; }
+  const t=document.getElementById('v'+s+'_'+a);
+  if(t) t.scrollIntoView({block:'center', behavior:smooth&&!matchMedia('(prefers-reduced-motion:reduce)').matches?'smooth':'auto'});
+}
+
+/* ============ the walk — produced live from wherever the reader stands ============
+   جاذبية الجوار is enforced here exactly as in the planner: the neighbourhood is
+   consumed before it is left, a crossing must clear the bar, and after one the
+   walk re-grounds before another is permitted. */
+function walk(s0,a0,depth,localFirst){
+  const spent=new Set([s0+':'+a0]);
+  const out=[]; let cur=[s0,a0], lastCross=-99;
+  for(let k=0;k<depth;k++){
+    const allow = (k>=(localFirst?2:0)) && (k-lastCross>=4);
+    const field = edgesOf(cur[0],cur[1]).filter(e=>!spent.has(e[0]+':'+e[1]));
+    if(!field.length) break;
+    const locals = field.filter(e=>e[4]!==CROSS);
+    const crosses= field.filter(e=>e[4]===CROSS && e[3]>=14);
+    let pick = locals[0];
+    if(allow && crosses.length) pick = crosses[0];
+    if(!pick) pick = field[0];
+    if(pick[4]===CROSS) lastCross=k;
+    spent.add(pick[0]+':'+pick[1]);
+    out.push({from:cur.slice(), to:[pick[0],pick[1]], score:pick[2], bits:pick[3],
+              tier:pick[4], sabab:pick[5], ev:pick[6], ty:pick[7]});
+    cur=[pick[0],pick[1]];
+  }
+  return out;
+}
+
+/* ============ the scroll panel ============ */
+function lock(s,a){
+  ANCHOR=[s,a];
+  $('#acit').textContent=s+':'+a;
+  $('#atext').textContent=T(s,a);
+  produce();
+  $('#panel').classList.add('open');
+  paint();
+}
+function produce(){
+  if(!ANCHOR) return;
+  const steps=walk(ANCHOR[0],ANCHOR[1],DEPTH,LOCAL);
+  TRACE=new Set(steps.map(x=>x.to[0]+':'+x.to[1]));
+  const sc=$('#scroll'); sc.textContent='';
+  if(!steps.length){
+    sc.appendChild(el('div','empty',
+      '<span class="ar">لا مَخْرَجَ مِن هٰهُنا</span>'+
+      'No edge above threshold leaves this āyah. Every candidate either sits too '+
+      'far to be near, or is too common to be worth the distance.'));
+    paint(); return;
+  }
+  steps.forEach((x,i)=>{
+    const st=el('div','step'+(x.tier===CROSS?' cross':''));
+    const hd=el('div','hd');
+    hd.appendChild(el('span','tier', TIER[x.tier]));
+    hd.appendChild(el('span','lbl', 'رتلة '+(i+1)));
+    hd.appendChild(el('span','sc', x.score.toFixed(1)+' ← '+x.bits.toFixed(1)+'w'));
+    st.appendChild(hd);
+    const t=el('div','t q', T(x.to[0],x.to[1]));
+    t.setAttribute('role','button'); t.tabIndex=0;
+    t.onclick=()=>{ jump(x.to[0],x.to[1],true); if(innerWidth<940) $('#panel').classList.remove('open'); };
+    st.appendChild(t);
+    const ft=el('div','ft');
+    ft.appendChild(el('span','c', x.to[0]+':'+x.to[1]));
+    ft.appendChild(el('span','e', SABAB[x.sabab]));
+    ft.appendChild(el('span','e', x.ev));
+    if(x.ty===1) ft.appendChild(el('span','e','إدراكي'));
+    st.appendChild(ft);
+    sc.appendChild(st);
+  });
+  paint();
+}
+
+/* ============ controls ============ */
+function depth(n,btn){ DEPTH=n;
+  ['#d3','#d6','#d10'].forEach(x=>$(x).setAttribute('aria-pressed','false'));
+  btn.setAttribute('aria-pressed','true'); produce(); }
+$('#d3').onclick=function(){depth(3,this)};
+$('#d6').onclick=function(){depth(6,this)};
+$('#d10').onclick=function(){depth(10,this)};
+$('#loc').onclick=function(){ LOCAL=!LOCAL;
+  this.setAttribute('aria-pressed',LOCAL); produce(); };
+$('#clear').onclick=()=>{ ANCHOR=null; TRACE=new Set();
+  $('#panel').classList.remove('open'); $('#scroll').textContent='';
+  $('#acit').textContent=''; $('#atext').textContent=''; paint(); };
+
+const idx=$('#idx');
+$('#openidx').onclick=()=>idx.classList.add('on');
+$('#closeidx').onclick=()=>idx.classList.remove('on');
+D.names.forEach(([ar,en],i)=>{
+  const b=el('button');
+  b.appendChild(el('span','n', i+1));
+  b.appendChild(el('span','a', ar));
+  b.onclick=()=>{ idx.classList.remove('on'); ANCHOR=null; TRACE=new Set();
+    $('#panel').classList.remove('open'); renderSurah(i+1); scrollTo(0,0); };
+  $('#idxg').appendChild(b);
+});
+addEventListener('keydown',e=>{ if(e.key==='Escape'){ idx.classList.remove('on');
+  $('#panel').classList.remove('open'); }});
+
+/* open on al-Rūm with its opening already locked, so the instrument is at work */
+renderSurah(30);
+lock(30,2);
+setTimeout(()=>scrollTo(0,0),0);
+})();
+</script>
