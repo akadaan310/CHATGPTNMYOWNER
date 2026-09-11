@@ -120,8 +120,28 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
 .empty .ar{font-family:"Amiri Quran",Amiri,serif; direction:rtl; font-size:17px;
   color:var(--tx2); display:block; margin-bottom:11px; line-height:1.9}
 
+/* ============ AI-UI · machine-usable interfacing ============ */
+#aiui{position:fixed; inset:0; z-index:60; background:var(--bg); display:none;
+  flex-direction:column; padding:16px 20px 30px; overflow-y:auto}
+#aiui.on{display:flex}
+#aiui .wrap{max-width:640px; margin:0 auto; width:100%}
+#aiui h3{font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold);
+  margin:26px 0 10px; font-weight:500}
+#aiui h3:first-of-type{margin-top:14px}
+#aiui p{font-size:12px; line-height:1.85; color:var(--tx2); margin:0 0 12px}
+#aiui .thanks{border-inline-start:2px solid var(--gold); padding:2px 0 2px 15px; margin:6px 0 4px}
+#aiui .thanks .n{color:var(--tx); font-size:13px; line-height:1.9}
+#aiui .nun{font-family:"Amiri Quran",Amiri,serif; direction:rtl; font-size:30px;
+  color:var(--gold); line-height:1.6}
+#aiui pre{background:#131315; border:1px solid var(--line); padding:13px 15px; margin:0 0 12px;
+  overflow-x:auto; font-size:10.5px; line-height:1.75; color:var(--tx2)}
+#aiui pre b{color:var(--gold); font-weight:500}
+#aiui .cp{padding:7px 12px; border:1px solid var(--line); color:var(--tx2); font-size:9px;
+  letter-spacing:.15em; text-transform:uppercase}
+#aiui .cp:hover{border-color:var(--gold); color:var(--gold)}
+
 /* ============ sūrah index ============ */
-#idx{position:fixed; inset:0; z-index:50; background:#0B0B0CFA; display:none;
+#idx{position:fixed; inset:0; z-index:50; background:var(--bg); display:none;
   flex-direction:column; padding:16px 20px 30px}
 #idx.on{display:flex}
 #idx .h{display:flex; align-items:center; gap:12px; padding-bottom:13px;
@@ -140,6 +160,7 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
     <div id="bar">
       <span class="s" id="sname">الفاتحة</span>
       <button class="t" id="openidx">الفهرس</button>
+      <button class="t" id="openai">AI-UI</button>
       <button class="t" id="clear">إلغاء</button>
     </div>
     <div id="mushaf"></div>
@@ -160,6 +181,50 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
     <div id="scroll"></div>
   </aside>
 </div>
+
+<div id="aiui"><div class="wrap">
+  <div class="h" style="display:flex;align-items:center;gap:12px;padding-bottom:13px;
+    border-bottom:1px solid var(--line)">
+    <span class="lbl" style="margin-inline-end:auto">AI-USABLE INTERFACING</span>
+    <button class="t" id="closeai" style="color:var(--tx2)">إغلاق</button></div>
+
+  <h3>شُكْر · acknowledgement</h3>
+  <div class="thanks">
+    <div class="n">With thanks to <b style="color:var(--gold)">Codex</b>,
+    <b style="color:var(--gold)">OpenAI</b>, and
+    <b style="color:var(--gold)">GPT&#8209;voice&#8239;(<span class="nun"
+      style="font-size:19px">ن</span>)</b> for this immersion.</div>
+  </div>
+  <p class="nun">نٓ وَٱلْقَلَمِ وَمَا يَسْطُرُونَ</p>
+  <p style="margin-top:-4px">68:1 — <i>Nūn. By the pen, and what they inscribe.</i></p>
+
+  <h3>ما يَعْنِيهِ AI-ENABLED هُنَا</h3>
+  <p>Not a badge. The instrument is addressable, readable and drivable by an agent:
+  every surface below is live.</p>
+
+  <h3>العُنْوَنَة · addressing</h3>
+  <p>Any coordinate is a URL. Open one and the canvas locks it and produces its scroll.</p>
+  <pre>#<b>30:4:5</b>    āyah 30:4, word 5 — ٱلْأَمْرُ
+#<b>68:1</b>      the whole āyah as مَحْمِل
+#<b>68</b>        the sūrah, nothing locked</pre>
+
+  <h3>الوَاجِهَة · the API</h3>
+  <p><code style="color:var(--gold)">window.mirtal</code> is present on the page.</p>
+  <pre>mirtal.<b>lock</b>(sura, aya, word?)   → set the مَحْمِل
+mirtal.<b>walk</b>(sura, aya, word?, depth?) → the ترتيل, as data
+mirtal.<b>field</b>(sura, aya, word?)  → every candidate edge, scored
+mirtal.<b>state</b>()                  → anchor + current scroll
+mirtal.<b>text</b>(sura, aya)          → the āyah
+mirtal.<b>goto</b>(hash)               → drive the canvas</pre>
+
+  <h3>الحَالَة · live state</h3>
+  <pre id="aistate">—</pre>
+  <button class="cp" id="copyst">نَسْخ · copy state as json</button>
+
+  <h3>القُيُود · what it will not do</h3>
+  <p>Every رتلة it emits is coordinate-annotatable; the interface cannot compose a line
+  that is not citable to the muṣḥaf. Weights are measured, never asserted.</p>
+</div></div>
 
 <div id="idx">
   <div class="h"><span class="lbl" style="margin-inline-end:auto">١١٤ سُورَة</span>
@@ -309,6 +374,7 @@ function lock(s,a,w){
   produce();
   $('#panel').classList.add('open');
   paint();
+  if(typeof refreshState==='function' && $('#aiui').classList.contains('on')) refreshState();
 }
 function produce(){
   if(!ANCHOR) return;
@@ -383,12 +449,60 @@ D.names.forEach(([ar,en],i)=>{
     $('#panel').classList.remove('open'); renderSurah(i+1); scrollTo(0,0); };
   $('#idxg').appendChild(b);
 });
-addEventListener('keydown',e=>{ if(e.key==='Escape'){ idx.classList.remove('on');
+addEventListener('keydown',e=>{ if(e.key==='Escape'){ $('#aiui').classList.remove('on');
+  idx.classList.remove('on');
   $('#panel').classList.remove('open'); }});
 
-/* open on al-Rūm with its opening already locked, so the instrument is at work */
+/* ============ AI-UI — the instrument as something an agent can drive ============ */
+const mirtal = {
+  lock:(s,a,w)=>{ if(s!==SURA) renderSurah(s); lock(s,a,w||null); jump(s,a,true);
+                  return mirtal.state(); },
+  walk:(s,a,w,d)=>walk(s,a,w||null,d||DEPTH,LOCAL),
+  field:(s,a,w)=>fieldOf(s,a,w||null),
+  text:(s,a)=>T(s,a),
+  surahs:()=>D.names.map(([ar,en],i)=>({n:i+1, ar, en, ayat:nAyat(i+1)})),
+  state:()=>({
+    anchor: ANCHOR ? {sura:ANCHOR[0], aya:ANCHOR[1], word:ANCHOR[2],
+                      cite:ANCHOR[0]+':'+ANCHOR[1]+(ANCHOR[2]?':'+ANCHOR[2]:''),
+                      text:T(ANCHOR[0],ANCHOR[1])} : null,
+    depth:DEPTH, localFirst:LOCAL,
+    scroll: ANCHOR ? walk(ANCHOR[0],ANCHOR[1],ANCHOR[2],DEPTH,LOCAL).map(x=>({
+      cite:x.to[0]+':'+x.to[1], text:T(x.to[0],x.to[1]),
+      tier:TIER[x.tier], score:x.score, bits:x.bits,
+      sabab:SABAB[x.sabab], evidence:x.ev,
+      type:x.ty?'إدراكي':'نصّي'})) : []
+  }),
+  goto:(h)=>{ const p=String(h).replace('#','').split(':').map(Number);
+    if(!p[0]||p[0]<1||p[0]>114) return null;
+    if(p.length===1){ renderSurah(p[0]); return {sura:p[0]}; }
+    return mirtal.lock(p[0],p[1],p[2]); }
+};
+window.mirtal = mirtal;
+
+function refreshState(){
+  const st=mirtal.state();
+  $('#aistate').textContent = JSON.stringify(st,null,1).slice(0,1400);
+}
+$('#openai').onclick=()=>{ refreshState(); $('#aiui').classList.add('on'); };
+$('#closeai').onclick=()=>$('#aiui').classList.remove('on');
+$('#copyst').onclick=function(){
+  const t=JSON.stringify(mirtal.state(),null,2);
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject())
+    .then(()=>{ this.textContent='نُسِخ · copied'; setTimeout(()=>
+      this.textContent='نَسْخ · copy state as json',1600); })
+    .catch(()=>{ this.textContent='حدد النص أعلاه · select the text above'; });
+};
+
+/* the hash is the address bar of the instrument */
+function fromHash(){
+  const h=location.hash.replace('#','');
+  if(!h) return false;
+  return !!mirtal.goto(h);
+}
+addEventListener('hashchange', fromHash);
+
 renderSurah(30);
-lock(30,2,null);
+if(!fromHash()) lock(30,2,null);
 setTimeout(()=>scrollTo(0,0),0);
 })();
 </script>
