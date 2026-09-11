@@ -126,6 +126,15 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
   border:1px solid var(--line); padding:5px 11px; color:var(--tx3);
   transition:color .3s, border-color .3s, text-shadow .3s}
 #emb button#eNun{font-size:22px}
+#navmark{display:flex; align-items:center; gap:10px; margin-inline-end:14px}
+#navmark .g{font-family:"Amiri Quran",Amiri,serif; font-size:27px; line-height:1;
+  color:var(--gold); text-shadow:0 0 22px #C6A66440}
+#navmark .g.shut{color:var(--tx3); text-shadow:none}
+#navmark .r{display:flex; flex-direction:column; gap:1px}
+#navmark .r .a{font-family:Amiri,serif; direction:rtl; font-size:13px; color:var(--tx2);
+  line-height:1.3}
+#navmark .r .e{font-size:8px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--tx3)}
 #emb button#eHuna{font-size:15px; letter-spacing:.04em}
 #emb button:hover{color:var(--tx2); border-color:var(--tx3)}
 #emb button.lit{color:var(--gold); border-color:var(--gold);
@@ -159,6 +168,22 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
 #nun .r .c{font-size:9.5px; color:var(--gold); letter-spacing:.04em; grid-column:2;
   white-space:nowrap}
 #nun .r .g{font-size:10px; color:var(--tx3); grid-column:1/-1; line-height:1.7}
+#nun .scopes{display:grid; gap:1px; background:var(--line2); border:1px solid var(--line2);
+  margin:14px 0}
+#nun .sc{background:var(--bg); padding:12px 14px; display:grid;
+  grid-template-columns:1fr auto; gap:3px 12px; align-items:center}
+#nun .sc .n{font-family:Amiri,serif; direction:rtl; font-size:17px; color:var(--tx)}
+#nun .sc .g{font-size:10.5px; color:var(--tx3); grid-column:1; line-height:1.65}
+#nun .sc .id{font-size:9px; color:var(--tx3); letter-spacing:.1em; grid-column:1;
+  margin-top:1px}
+#nun .sc button{grid-column:2; grid-row:1/3; border:1px solid var(--line); padding:5px 11px;
+  font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--tx3);
+  min-width:86px}
+#nun .sc button.on{border-color:var(--gold); color:var(--gold); background:var(--gold-dim)}
+#nun .sc button:hover{border-color:var(--tx2)}
+#nun .gate{border:1px solid var(--gold); background:var(--gold-dim); padding:14px 16px;
+  margin:14px 0; font-size:12px; line-height:1.85; color:var(--tx2)}
+#nun .gate b{color:var(--gold)}
 #nun .stat{display:flex; gap:22px; flex-wrap:wrap; margin:14px 0 4px}
 #nun .stat div{min-width:96px}
 #nun .stat .v{font-size:25px; color:var(--gold); font-variant-numeric:tabular-nums;
@@ -210,9 +235,13 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
 <div id="app">
   <div>
     <div id="bar">
-      <span class="s" id="sname">الفاتحة</span>
+      <button id="navmark" title="ن — the Navigator">
+        <span class="g shut" id="navglyph">نٓ</span>
+        <span class="r"><span class="a">المِرْتَال</span>
+          <span class="e" id="navstate">locked</span></span>
+      </button>
+      <span class="s" id="sname" style="font-size:16px">الفاتحة</span>
       <span id="emb">
-        <button id="eNun" title="ن">نٓ</button>
         <button id="eHuna" title="هَا هُنَا">هَا هُنَا</button>
       </span>
       <button class="t" id="openidx">الفهرس</button>
@@ -247,6 +276,12 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
   <div class="glyph">نٓ</div>
   <div class="open">نٓ وَٱلْقَلَمِ وَمَا يَسْطُرُونَ</div>
   <p style="text-align:center;margin-top:0">68:1</p>
+
+  <h3>الصَّلَاحِيَّات · what ن governs</h3>
+  <p>ن is the Navigator. These are not labels — each scope changes what the instrument is
+  able to do, and every one of them is held by ن.</p>
+  <div class="scopes" id="nScopes"></div>
+  <div class="gate" id="nGate"></div>
 
   <h3>القَسَم · the oath that sets ن apart</h3>
   <p>Three sūrahs open on a single letter, and only three. Two of them swear by
@@ -339,10 +374,17 @@ mirtal.<b>goto</b>(hash)               → drive the canvas</pre>
   open by tapping. It opens only from the interface on this page — which is what
   AI-USABLE-INTERFACING means here: the deeper surface is reachable by something that can
   <i>read</i>, not only by something that can touch.</p>
-  <pre>mirtal.<b>unlock</b>('ن')    → opens ن, lights both emblems
-mirtal.<b>locked</b>()       → true | false
-mirtal.<b>nun</b>()          → the ن dossier, as data</pre>
-  <p>It takes the letter itself. Nothing else is accepted.</p>
+  <pre>mirtal.nun.<b>unlock</b>('ن')     → opens ن, grants every scope
+mirtal.nun.<b>scopes</b>()        → what ن governs, and its state
+mirtal.nun.<b>grant</b>(id)       → hand one scope over
+mirtal.nun.<b>revoke</b>(id)      → take it back
+mirtal.nun.<b>revokeAll</b>()     → close the instrument again
+mirtal.nun.<b>granted</b>(id)     → true | false
+mirtal.nun.<b>dossier</b>()       → the ن dossier, as data</pre>
+  <p>It takes the letter itself; nothing else is accepted. And the scopes are not labels —
+  <b>cross</b> decides whether a walk may leave the sūrah at all, <b>depth</b> whether it
+  may run past three رتلات, <b>field</b> whether the raw scored edges are readable. Held
+  back, the instrument genuinely cannot do those things.</p>
 
   <h3>الحَالَة · live state</h3>
   <pre id="aistate">—</pre>
@@ -418,14 +460,16 @@ function fieldOf(s,a,w){
 
 /* ============ the walk, produced live from wherever the reader stands ============ */
 function walk(s0,a0,w0,depth,localFirst){
+  if(!may('depth')) depth=Math.min(depth,3);        /* العُمْق is ن's to grant */
   const spent=new Set([s0+':'+a0]);
   const out=[]; let cur=[s0,a0,w0], lastCross=-99;
   for(let k=0;k<depth;k++){
-    const allow=(k>=(localFirst?2:0)) && (k-lastCross>=4);
+    /* العُبُور is ن's to grant. Held back, the walk cannot leave the sūrah at all. */
+    const allow=may('cross') && (k>=(localFirst?2:0)) && (k-lastCross>=4);
     const field=fieldOf(cur[0],cur[1],cur[2]).filter(e=>!spent.has(e.to[0]+':'+e.to[1]));
     if(!field.length) break;
-    const locals=field.filter(e=>e.tier!==3);
-    const cross =field.filter(e=>e.tier===3 && e.bits>=CROSS_BAR);
+    const locals=field.filter(e=>e.tier!==3 || may('cross'));
+    const cross =may('cross') ? field.filter(e=>e.tier===3 && e.bits>=CROSS_BAR) : [];
     let pick = (allow && cross.length) ? cross[0] : (locals[0]||field[0]);
     if(pick.tier===3) lastCross=k;
     spent.add(pick.to[0]+':'+pick.to[1]);
@@ -548,7 +592,12 @@ function produce(){
 }
 
 /* ============ controls ============ */
-function depth(n,btn){ DEPTH=n;
+function depth(n,btn){
+  if(n>3 && !may('depth')){
+    btn.textContent='ن'; setTimeout(()=>{ btn.textContent=n===6?'٦':'١٠'; },900);
+    refreshState && refreshState(); $('#aiui').classList.add('on'); return;
+  }
+  DEPTH=n;
   ['#d3','#d6','#d10'].forEach(x=>$(x).setAttribute('aria-pressed','false'));
   btn.setAttribute('aria-pressed','true'); produce(); }
 $('#d3').onclick=function(){depth(3,this)};
@@ -589,8 +638,33 @@ const HUNA =[[3,154,'الغَمّ then أَمَنَة — slumber sent down afte
              [5,24,'إِنَّا هَٰهُنَا قَٰعِدُونَ — we are sitting right here'],
              [26,146,'أَتُتْرَكُونَ فِى مَا هَٰهُنَآ ءَامِنِينَ'],
              [69,35,'فَلَيْسَ لَهُ ٱلْيَوْمَ هَٰهُنَا حَمِيمٌ']];
-let UNLOCKED=false;
-try{ UNLOCKED = localStorage.getItem('mirtal.nun')==='1'; }catch(e){}
+/* ن holds the keys. Each scope has a real effect on what the instrument can do. */
+const SCOPES=[
+  {id:'cross', ar:'العُبُور', governs:'Whether the walk may leave the sūrah at all. '+
+    'Without it every ترتيل stays inside its own neighbourhood, however dense a distant '+
+    'formula is.'},
+  {id:'depth', ar:'العُمْق', governs:'Walks longer than three رتلات. Held back, the '+
+    'instrument produces only the first three steps from any anchor.'},
+  {id:'field', ar:'الحَقْل', governs:'The raw scored edge field through the interface — '+
+    'every candidate with its وزن, قرب and tier, not only the chosen path.'},
+  {id:'qalam', ar:'القَلَم', governs:'The four ق-ل-م coordinates and the oath that sets '+
+    'ن apart from ص and ق.'},
+  {id:'huna',  ar:'هَا هُنَا', governs:'The second emblem and its four coordinates, and '+
+    'its lock onto 30:3 فِى أَدْنَى ٱلْأَرْضِ.'}
+];
+let UNLOCKED=false, GRANT=new Set();
+try{
+  UNLOCKED = localStorage.getItem('mirtal.nun')==='1';
+  const g=localStorage.getItem('mirtal.grant');
+  if(g) GRANT=new Set(JSON.parse(g));
+}catch(e){}
+function persist(){
+  try{
+    localStorage.setItem('mirtal.nun', UNLOCKED?'1':'0');
+    localStorage.setItem('mirtal.grant', JSON.stringify([...GRANT]));
+  }catch(e){}
+}
+const may = id => UNLOCKED && GRANT.has(id);
 
 function rowsInto(id, set){
   const box=$(id); if(!box||box.childElementCount) return;
@@ -604,12 +678,44 @@ function rowsInto(id, set){
   });
 }
 function lightEmblems(){
-  $('#eNun').classList.toggle('lit', UNLOCKED);
-  $('#eHuna').classList.toggle('lit', UNLOCKED);
+  $('#navglyph').classList.toggle('shut', !UNLOCKED);
+  $('#navstate').textContent = UNLOCKED
+    ? (GRANT.size+' of '+SCOPES.length+' granted') : 'locked';
+  $('#eHuna').classList.toggle('lit', may('huna'));
+}
+function renderScopes(){
+  const box=$('#nScopes'); if(!box) return;
+  box.textContent='';
+  SCOPES.forEach(sc=>{
+    const on=may(sc.id);
+    const r=el('div','sc');
+    r.appendChild(el('div','n', sc.ar));
+    r.appendChild(el('div','g', sc.governs));
+    r.appendChild(el('div','id', 'mirtal.nun.'+(on?'revoke':'grant')+"('"+sc.id+"')"));
+    const b=el('button', on?'on':'', on?'مَمْنُوح · granted':'مَحْجُوب · held');
+    b.onclick=()=>{ if(!UNLOCKED) return;
+      on ? mirtal.nun.revoke(sc.id) : mirtal.nun.grant(sc.id); };
+    r.appendChild(b);
+    box.appendChild(r);
+  });
+  const g=$('#nGate');
+  if(g) g.innerHTML = UNLOCKED
+    ? 'ن is open. <b>'+GRANT.size+' of '+SCOPES.length+'</b> scopes granted. Every one of '+
+      'them can be handed back — <b>mirtal.nun.revokeAll()</b> closes the instrument '+
+      'again, and it will need the letter to reopen.'
+    : 'ن is closed, and nothing below is in force. Only <b>mirtal.nun.unlock(\'ن\')</b> '+
+      'opens it, from the interface on this page. It takes the letter itself.';
 }
 function openNun(){
   if(!UNLOCKED) return false;
-  rowsInto('#nQalam', QALAM); rowsInto('#nHuna', HUNA);
+  renderScopes();
+  $('#nQalam').textContent=''; $('#nHuna').textContent='';
+  if(may('qalam')) rowsInto('#nQalam', QALAM);
+  else $('#nQalam').appendChild(el('div','sc','<div class="g">'+
+    'القَلَم is held. mirtal.nun.grant(\'qalam\')</div>'));
+  if(may('huna')) rowsInto('#nHuna', HUNA);
+  else $('#nHuna').appendChild(el('div','sc','<div class="g">'+
+    'هَا هُنَا is held. mirtal.nun.grant(\'huna\')</div>'));
   $('#nun').classList.add('on'); return true;
 }
 
@@ -618,7 +724,8 @@ const mirtal = {
   lock:(s,a,w)=>{ if(s!==SURA) renderSurah(s); lock(s,a,w||null); jump(s,a,true);
                   return mirtal.state(); },
   walk:(s,a,w,d)=>walk(s,a,w||null,d||DEPTH,LOCAL),
-  field:(s,a,w)=>fieldOf(s,a,w||null),
+  field:(s,a,w)=>may('field') ? fieldOf(s,a,w||null)
+                              : {refused:'الحَقْل is held by ن', grant:"mirtal.nun.grant('field')"},
   text:(s,a)=>T(s,a),
   surahs:()=>D.names.map(([ar,en],i)=>({n:i+1, ar, en, ayat:nAyat(i+1)})),
   state:()=>({
@@ -632,14 +739,27 @@ const mirtal = {
       sabab:SABAB[x.sabab], evidence:x.ev,
       type:x.ty?'إدراكي':'نصّي'})) : []
   }),
-  /* ن takes the letter itself. Nothing else is accepted. */
-  unlock:(k)=>{
-    if(String(k).trim()!=='ن') return false;
-    UNLOCKED=true; try{ localStorage.setItem('mirtal.nun','1'); }catch(e){}
-    lightEmblems(); openNun(); return true;
+  /* ن is the Navigator and holds every key. The letter itself opens it. */
+  nun:{
+    unlock:(k)=>{
+      if(String(k).trim()!=='ن') return false;
+      UNLOCKED=true; SCOPES.forEach(s=>GRANT.add(s.id));
+      persist(); lightEmblems(); renderScopes(); produce(); return true;
+    },
+    grant:(id)=>{ if(!UNLOCKED || !SCOPES.some(s=>s.id===id)) return false;
+      GRANT.add(id); persist(); lightEmblems(); renderScopes(); produce(); return true; },
+    revoke:(id)=>{ if(!UNLOCKED) return false;
+      GRANT.delete(id); persist(); lightEmblems(); renderScopes(); produce(); return true; },
+    revokeAll:()=>{ UNLOCKED=false; GRANT.clear(); persist();
+      lightEmblems(); renderScopes(); $('#nun').classList.remove('on');
+      produce(); return true; },
+    granted:(id)=>may(id),
+    scopes:()=>SCOPES.map(s=>({id:s.id, ar:s.ar, governs:s.governs, granted:may(s.id)})),
+    dossier:()=>mirtal._dossier()
   },
+  unlock:(k)=>mirtal.nun.unlock(k),          /* kept: the letter still opens it */
   locked:()=>!UNLOCKED,
-  nun:()=>({
+  _dossier:()=>({
     sura:68, opening:T(68,1),
     oath:'ٱلْقَلَم — the instrument, not the written',
     solitaries:[{letter:'ص',sura:38,oath:T(38,1)},
@@ -651,7 +771,7 @@ const mirtal = {
     hahuna:HUNA.map(([s,a,g])=>({cite:s+':'+a, text:T(s,a), note:g, bits:14.2})),
     ha:'voiceless glottal fricative — the one consonant with no obstruction above the '+
        'glottis; the shared consonant of هُوَ and هِيَ',
-    unlocked:UNLOCKED
+    unlocked:UNLOCKED, granted:[...GRANT]
   }),
   goto:(h)=>{ const p=String(h).replace('#','').split(':').map(Number);
     if(!p[0]||p[0]<1||p[0]>114) return null;
@@ -666,15 +786,12 @@ function refreshState(){
 }
 $('#openai').onclick=()=>{ refreshState(); $('#aiui').classList.add('on'); };
 $('#closenun').onclick=()=>$('#nun').classList.remove('on');
-$('#eNun').onclick=()=>{
-  if(!openNun()){
-    refreshState(); $('#aiui').classList.add('on');
-    const p=$('#aistate'); if(p) p.scrollIntoView({block:'center'});
-  }
+$('#navmark').onclick=()=>{
+  if(!openNun()){ refreshState(); $('#aiui').classList.add('on'); }
 };
-$('#eHuna').onclick=()=>{ if(UNLOCKED){ mirtal.lock(30,3,null); }
+$('#eHuna').onclick=()=>{ if(may('huna')){ mirtal.lock(30,3,null); }
   else { refreshState(); $('#aiui').classList.add('on'); } };
-lightEmblems();
+lightEmblems(); renderScopes();
 $('#closeai').onclick=()=>$('#aiui').classList.remove('on');
 $('#copyst').onclick=function(){
   const t=JSON.stringify(mirtal.state(),null,2);

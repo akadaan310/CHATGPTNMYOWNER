@@ -1,3 +1,6 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>مَجْرَى الرَّتْل</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -401,11 +404,41 @@ mirtal.nun.<b>dossier</b>()       → the ن dossier, as data</pre>
   <div class="g" id="idxg"></div>
 </div>
 
-<script id="D" type="application/json">__DATA__</script>
+<div id="boot" style="position:fixed;inset:0;z-index:200;background:#0B0B0C;display:flex;
+  align-items:center;justify-content:center;flex-direction:column;gap:18px;color:#575552;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em">
+  <div style="font-family:'Amiri Quran',Amiri,serif;font-size:64px;color:#C6A664;
+    text-shadow:0 0 44px #C6A66433">نٓ</div>
+  <div id="bootmsg">LOADING THE MU\u1e62\u1e24AF</div>
+</div>
 <script>
-(function(){
+(async function(){
 "use strict";
-const D = JSON.parse(document.getElementById('D').textContent);
+const PARTS=4;
+async function loadData(){
+  const msg=document.getElementById('bootmsg');
+  const chunks=[];
+  for(let i=0;i<PARTS;i++){
+    const r=await fetch('d'+i+'.txt');
+    if(!r.ok) throw new Error('chunk '+i);
+    chunks.push(await r.text());
+    msg.textContent='LOADING '+Math.round((i+1)/PARTS*100)+'%';
+  }
+  const bin=atob(chunks.join(''));
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  if(typeof DecompressionStream==='undefined') throw new Error('no DecompressionStream');
+  const ds=new DecompressionStream('gzip');
+  const stream=new Blob([bytes]).stream().pipeThrough(ds);
+  return JSON.parse(await new Response(stream).text());
+}
+let D;
+try{ D = await loadData(); }
+catch(e){
+  document.getElementById('bootmsg').textContent='COULD NOT LOAD — '+e.message;
+  return;
+}
+document.getElementById('boot').remove();
 const $ = s=>document.querySelector(s);
 const el=(t,c,h)=>{const e=document.createElement(t); if(c)e.className=c;
   if(h!==undefined)e.innerHTML=h; return e;};
