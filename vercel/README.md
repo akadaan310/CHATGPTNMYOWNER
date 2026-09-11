@@ -9,6 +9,11 @@ which the sūrah index honours).
 
 ## deploying
 
+`vercel.json` at the repo root sets `outputDirectory` to this folder, so the
+deployment root serves `index.html` and `d0.txt` sits beside it where the boot
+loader fetches it. Without it Vercel serves the repo root, which has no
+`index.html`, and the deployment URL answers 404.
+
 Use the git path. Push this repo and point Vercel at it — the corpus is
 several megabytes and must not be hand-carried through an inline file API;
 a single mistyped base64 character fails the gzip CRC and the page will not
