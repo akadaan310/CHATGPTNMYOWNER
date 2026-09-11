@@ -442,7 +442,7 @@ function fieldOf(s,a,w){
     seen.add(k);
   };
   if(w){
-    const row=(D.words[s+':'+a]||{})[w]||[];
+    const row=((D.words||{})[s+':'+a]||{})[w]||[];   /* words table is optional */
     row.forEach(e=>push(e[0],e[1],e[2],e[3],e[4],e[5]));
   } else {
     (D.edges[s+':'+a]||[]).forEach(e=>{
