@@ -369,6 +369,22 @@ mirtal.<b>state</b>()                  → anchor + current scroll
 mirtal.<b>text</b>(sura, aya)          → the āyah
 mirtal.<b>goto</b>(hash)               → drive the canvas</pre>
 
+  <h3>الكَشْف · discovery</h3>
+  <p>The instrument keeps an account of its own declared universe: what it has traversed,
+  what remains admissible and untried, what an existing rule refused, and what ن is holding
+  back. It persists, and it never reports <b>unexplored</b> as <b>exhausted</b>.</p>
+  <pre>mirtal.<b>capabilities</b>(id?)      → what is implemented, derived, unavailable
+mirtal.<b>discover</b>()            → STATE · FRONTIER · EXHAUSTED · INVALID
+mirtal.<b>discover</b>(s, a, w?)    → evaluate one coordinate into the ledger
+mirtal.<b>discover</b>(s, a, w?, {steps:n}) → bounded sweep of the frontier
+mirtal.<b>discover</b>({reset:true}) → forget the ledger
+mirtal.<b>frontier</b>(n?)          → admissible, not yet evaluated
+mirtal.<b>provenance</b>(cite)      → every recorded transition out of it
+mirtal.<b>provenance</b>(from, to)  → the rule that produced one transition</pre>
+  <p>Exhaustion is always relative: each record carries the bound signature it was made
+  under, and says so when the bounds have since moved. A crossing held back by ن is
+  <b>WITHHELD</b>, not <b>INVALID</b> — the two are different computational states.</p>
+
   <h3>القُفْل · the lock</h3>
   <p>The instrument opens in its ordinary state. The ن surface is closed, and it does not
   open by tapping. It opens only from the interface on this page — which is what
@@ -432,8 +448,11 @@ function qurb(s0,a0,s1,a1){
   if(d<=NEAR_SPAN) return [NEAR_BASE-NEAR_DECAY*d,1];
   return [SAME_SURAH,2];
 }
-/* the field out of a coordinate. w null → the whole āyah. */
-function fieldOf(s,a,w){
+/* the field out of a coordinate. w null → the whole āyah.
+   fieldRaw offers every candidate the sabab tables carry; fieldOf is that list
+   under the planner's own floor on دَرَجَة. The split changes nothing about what
+   fieldOf returns — it only lets الكَشْف see what the floor refused. */
+function fieldRaw(s,a,w){
   const out=[], seen=new Set([s+':'+a]);
   const push=(ts,ta,bits,sab,ev,ty)=>{
     const k=ts+':'+ta; if(seen.has(k)) return; 
@@ -455,7 +474,10 @@ function fieldOf(s,a,w){
     if(aa<1||aa>n) continue;
     push(s,aa, d<=1?TAJAWUR_W:TAJAWUR_W+1.0, d<=1?0:1, d<=1?'الآية المجاورة':'±'+d+' آية', 0);
   }
-  return out.filter(e=>e.score>=8.0).sort((x,y)=>y.score-x.score);
+  return out;
+}
+function fieldOf(s,a,w){
+  return fieldRaw(s,a,w).filter(e=>e.score>=8.0).sort((x,y)=>y.score-x.score);
 }
 
 /* ============ the walk, produced live from wherever the reader stands ============ */
@@ -719,6 +741,174 @@ function openNun(){
   $('#nun').classList.add('on'); return true;
 }
 
+
+/* ============ الكَشْف — the discovery ledger ==================================
+   The instrument's account of its own declared universe, and of the edge of it.
+
+   Nothing here introduces a rule. Candidates come from fieldRaw, tiers and قُرْب
+   from qurb, bounds from ن and from the planner's own constants. A candidate no
+   existing rule admits is recorded as INVALID (a rule refused it) or WITHHELD
+   (ن holds the scope) — never as an edge, and never silently as "nothing there".
+   A coordinate never evaluated stays UNEXPLORED, which is not EXHAUSTED: the
+   second is a claim, and it is only ever made relative to the bounds in force. */
+const DK='mirtal.discovery', DV=1, DMAX=4096, SWEEP_MAX=64, FRONT_MAX=500;
+let LED={v:DV, at:null, seen:{}, inv:{}};
+try{ const r=localStorage.getItem(DK), p=r&&JSON.parse(r);
+     if(p && p.v===DV && p.seen) LED=p; }catch(e){}
+function ledPersist(){ try{ localStorage.setItem(DK, JSON.stringify(LED)); }catch(e){} }
+
+/* discovery is exhaustive only RELATIVE to these, so they travel with every record */
+const depthBound = () => may('depth') ? DEPTH : Math.min(DEPTH,3);
+const boundSig = () => [8.0, NEAR_SPAN, CROSS_BAR, may('cross')?1:0, depthBound()].join('/');
+function boundsNow(){
+  return {minScore:8.0, nearSpan:NEAR_SPAN, crossBar:CROSS_BAR, crossDepthCooldown:4,
+          localFirst:LOCAL?2:0, depth:depthBound(), crossPermitted:may('cross'),
+          fieldReadable:may('field'), nunOpen:UNLOCKED, sig:boundSig()};
+}
+
+/* ---- الطَّاقَات: what this runtime can actually do, and what it cannot ---- */
+const CAPS=[
+ {id:'corpus.text', ar:'النَّصّ', substrate:'D.text — the bundled muṣḥaf',
+  operators:['T(s,a)'], input:'(sura 1..114, aya 1..n)', transformation:'coordinate → āyah text',
+  output:'string', constraints:['coordinate must exist'], depth:0, reversible:false,
+  implementation:'runtime', provenance:'bundle', reproducible:true, status:'KNOWN'},
+ {id:'field.sabab', ar:'الأَسْبَاب', substrate:'D.edges / D.words',
+  operators:SABAB.slice(), input:'(sura, aya, word?)',
+  transformation:'coordinate → scored candidate edges',
+  constraints:['وَزْن + قُرْب ≥ 8.0'], depth:1, reversible:false,
+  output:'edge[]', implementation:'precomputed by sabab.py, consumed here',
+  provenance:'bundle: سبب name + evidence + bits per edge', reproducible:true, status:'KNOWN'},
+ {id:'field.jiwar', ar:'الجِوَار', substrate:'sūrah length',
+  operators:['qurb'], input:'(sura, aya)', transformation:'coordinate → ±NEAR_SPAN neighbourhood',
+  output:'edge[]', constraints:['|Δāyah| ≤ '+NEAR_SPAN, 'same sūrah'], depth:1,
+  reversible:true, implementation:'runtime (reconstructed structurally)',
+  provenance:'structure, not a table', reproducible:true, status:'KNOWN'},
+ {id:'traverse.walk', ar:'الرَّتْل', substrate:'field.sabab + field.jiwar',
+  operators:['fieldOf','qurb'], input:'(sura, aya, word?, depth?)',
+  transformation:'anchor → depth-bounded greedy traversal',
+  output:'step[]', constraints:['depth ≤ '+depthBound(), 'crossing needs scope:cross',
+   'crossing reserved slot needs bits ≥ '+CROSS_BAR, 'cooldown 4 steps', 'no coordinate twice'],
+  depth:depthBound(), reversible:false, implementation:'runtime',
+  provenance:'each step carries سبب, evidence, bits, score, tier', reproducible:true,
+  status:'KNOWN'},
+ {id:'traverse.reverse', ar:'العَكْس', substrate:'a recorded traversal',
+  operators:['ops.aks'], input:'step[]', transformation:'reverse the attachment',
+  output:'step[]', constraints:['the traversal must already exist'], depth:0,
+  reversible:true, implementation:'derivable — array reversal over a recorded walk',
+  provenance:'inherits the walk it reverses', reproducible:true, status:'DERIVED'},
+ {id:'traverse.compress', ar:'الضَّغْط', substrate:'a recorded traversal',
+  operators:['ops.daght'], input:'step[]', transformation:'path → its two endpoints',
+  output:'span[2]', constraints:['the traversal must already exist'], depth:0,
+  reversible:false, implementation:'derivable — first and last of a recorded walk',
+  provenance:'inherits the walk it compresses', reproducible:true, status:'DERIVED'},
+ {id:'nav.lock', ar:'المَحْمِل', substrate:'the canvas', operators:['lock','jump'],
+  input:'(sura, aya, word?)', transformation:'set the anchor', output:'state',
+  constraints:['coordinate must exist'], depth:0, reversible:true,
+  implementation:'runtime', provenance:'interface action', reproducible:true, status:'KNOWN'},
+ {id:'gate.nun', ar:'ن', substrate:'the scope table', operators:['unlock','grant','revoke'],
+  input:'scope id', transformation:'open or close a capability boundary', output:'boolean',
+  constraints:["unlock takes the letter ن and nothing else"], depth:0, reversible:true,
+  implementation:'runtime', provenance:'localStorage mirtal.nun / mirtal.grant',
+  reproducible:true, status:'KNOWN'},
+ {id:'discover.ledger', ar:'الكَشْف', substrate:'this ledger',
+  operators:['discEval','frontier'], input:'(sura, aya, word?, {steps})',
+  transformation:'coordinate → its admitted, refused and withheld candidates',
+  output:'record', constraints:['≤ '+SWEEP_MAX+' coordinates per sweep',
+   '≤ '+DMAX+' coordinates retained', 'exhaustion is relative to the bound signature'],
+  depth:1, reversible:false, implementation:'runtime',
+  provenance:'every transition keeps سبب, evidence, bits, score, tier, bounds',
+  reproducible:true, status:'KNOWN'},
+ /* declared in the operator algebra (ops.py) but NOT present in this runtime.
+    They are named here so the boundary is explicit — not so it can be crossed. */
+ {id:'ops.hamal', ar:'الحَمْل', status:'UNAVAILABLE',
+  reason:'span-level substrate (w0,w1) is not shipped to this runtime'},
+ {id:'ops.wasl', ar:'الوَصْل', status:'UNAVAILABLE',
+  reason:'span-level substrate (w0,w1) is not shipped to this runtime'},
+ {id:'ops.fasl', ar:'الفَصْل', status:'UNAVAILABLE',
+  reason:'span-level substrate (w0,w1) is not shipped to this runtime'},
+ {id:'ops.ihata', ar:'الإحَاطَة', status:'UNAVAILABLE',
+  reason:'span-level substrate (w0,w1) is not shipped to this runtime'},
+ {id:'ops.isqat', ar:'الإسْقَاط', status:'UNAVAILABLE',
+  reason:'مقام is not modelled in this runtime; الإسقاط ممنوع في مقام الإسناد'},
+ {id:'ops.jam', ar:'الجَمْع', status:'UNAVAILABLE',
+  reason:'the fawātiḥ cluster table is not shipped to this runtime'}
+];
+
+/* ---- evaluate ONE coordinate under the bounds in force ---- */
+function discEval(s,a,w){
+  s=+s; a=+a;
+  if(!(s>=1&&s<=114)) return {error:'sūrah out of range', sura:s};
+  if(!(a>=1&&a<=nAyat(s))) return {error:'āyah out of range', cite:s+':'+a};
+  const cite=s+':'+a;
+  if(!LED.seen[cite] && Object.keys(LED.seen).length>=DMAX)
+    return {cite, status:'UNEXPLORED', reason:'ledger bound reached ('+DMAX+' coordinates)'};
+  const adm=[], bad=[], seen=new Set([cite]);
+  fieldRaw(s,a,w||null).forEach(e=>{
+    const to=e.to[0]+':'+e.to[1];
+    if(seen.has(to)) return;
+    seen.add(to);
+    if(e.score<8.0){ bad.push([to,'INVALID','دَرَجَة < 8.0 (the planner floor)',e.score]); return; }
+    if(e.tier===CROSS && !may('cross')){
+      bad.push([to,'WITHHELD',"scope:cross is held by ن",e.bits]); return; }
+    adm.push([to, e.sabab, String(e.ev).slice(0,52), e.bits, e.score, e.tier, e.ty?1:0]);
+  });
+  adm.sort((x,y)=>y[4]-x[4]);
+  LED.seen[cite]={b:boundSig(), w:w||0, t:adm};
+  if(bad.length) LED.inv[cite]=bad; else delete LED.inv[cite];
+  LED.at=cite; ledPersist();
+  return discRecord(cite);
+}
+function discRecord(cite){
+  const r=LED.seen[cite];
+  const p=String(cite).split(':').map(Number);
+  if(!r) return {cite, status:'UNEXPLORED',
+                 note:'not evaluated — this is not a claim that nothing is reachable'};
+  return {cite, text:T(p[0],p[1]),
+    status: r.b===boundSig() ? 'EXHAUSTED' : 'KNOWN',
+    exhaustiveUnder: r.b, boundsNow: boundSig(),
+    stale: r.b!==boundSig(),
+    transitions: r.t.map(t=>({from:cite, to:t[0], sabab:SABAB[t[1]]||t[1], evidence:t[2],
+      bits:t[3], score:t[4], tier:TIER[t[5]], type:t[6]?'إدراكي':'نصّي'})),
+    refused: (LED.inv[cite]||[]).map(x=>({to:x[0], status:x[1], rule:x[2], value:x[3]})),
+    unexploredFrom: r.t.map(t=>t[0]).filter(c=>!LED.seen[c])};
+}
+function discFrontier(n){
+  n = Math.max(1, Math.min(n|0 || 50, FRONT_MAX));
+  const out=[], seen=new Set();
+  for(const c in LED.seen) for(const t of LED.seen[c].t){
+    if(LED.seen[t[0]] || seen.has(t[0])) continue;
+    seen.add(t[0]); out.push({cite:t[0], via:c, score:t[4], sabab:SABAB[t[1]]||t[1]});
+  }
+  out.sort((x,y)=>y.score-x.score);
+  return {status:'UNEXPLORED', count:out.length, shown:Math.min(out.length,n),
+    sample:out.slice(0,n), bounds:boundSig(),
+    note:'admissible under the bounds in force, not yet evaluated'};
+}
+function discSummary(){
+  const cites=Object.keys(LED.seen), sig=boundSig();
+  let exhausted=0, stale=0, edges=0;
+  cites.forEach(c=>{ edges+=LED.seen[c].t.length;
+    if(LED.seen[c].b===sig) exhausted++; else stale++; });
+  let invalid=0, withheld=0;
+  for(const c in LED.inv) LED.inv[c].forEach(x=>x[1]==='INVALID'?invalid++:withheld++);
+  const f=discFrontier(1);
+  const byStatus={};
+  CAPS.forEach(c=>{ byStatus[c.status]=(byStatus[c.status]||0)+1; });
+  return {
+    STATE:{discovered:cites.length, last:LED.at, transitions:edges, persisted:true,
+           ledger:DK, retained:DMAX},
+    CAPABILITIES:byStatus,
+    FRONTIER:{status:'UNEXPLORED', count:f.count},
+    EXHAUSTED:{underCurrentBounds:exhausted, underOtherBounds:stale},
+    INVALID:{refusedByRule:invalid, withheldByNun:withheld},
+    PROVENANCE:'mirtal.provenance(cite) · mirtal.provenance(from, to)',
+    BOUNDS:boundsNow(),
+    universe:{coordinates:Object.values(D.text).reduce((n,s)=>n+s.length,0),
+              note:'the universe declared by this substrate and these rules — '+
+                   'not a claim about the Qur’an'}
+  };
+}
+
 /* ============ AI-UI — the instrument as something an agent can drive ============ */
 const mirtal = {
   lock:(s,a,w)=>{ if(s!==SURA) renderSurah(s); lock(s,a,w||null); jump(s,a,true);
@@ -727,6 +917,45 @@ const mirtal = {
   field:(s,a,w)=>may('field') ? fieldOf(s,a,w||null)
                               : {refused:'الحَقْل is held by ن', grant:"mirtal.nun.grant('field')"},
   text:(s,a)=>T(s,a),
+  /* ---- الكَشْف: the instrument's account of its own declared universe ---- */
+  capabilities:(id)=>id ? (CAPS.filter(c=>c.id===id)[0] ||
+                           {id, status:'UNAVAILABLE', reason:'no such capability is declared'})
+                        : CAPS.slice(),
+  discover:(s,a,w,opts)=>{
+    if(s && typeof s==='object'){ opts=s; s=null; }
+    opts=opts||{};
+    if(opts.reset){ LED={v:DV, at:null, seen:{}, inv:{}}; ledPersist(); return discSummary(); }
+    if(s==null && !opts.steps) return discSummary();
+    const done=[];
+    if(s!=null){ const r=discEval(s,a,w); if(r && r.error) return r; done.push(r); }
+    if(s!=null && !opts.steps) return done[0];      /* one coordinate → its record */
+    let steps=Math.max(0, Math.min(opts.steps|0, SWEEP_MAX));
+    while(steps-- > 0){
+      const f=discFrontier(1);
+      if(!f.count) break;
+      const p=f.sample[0].cite.split(':');
+      done.push(discEval(+p[0], +p[1], null));
+    }
+    return {evaluated:done.length, records:done, frontier:discFrontier(10),
+            summary:discSummary()};
+  },
+  frontier:(n)=>discFrontier(n),
+  provenance:(cite,to)=>{
+    if(cite==null) return {ledger:Object.keys(LED.seen).length,
+      note:'pass a coordinate — mirtal.provenance("30:4") — or a pair',
+      bounds:boundsNow(), summary:discSummary()};
+    const rec=discRecord(String(cite));
+    if(to==null) return rec;
+    const hit=(rec.transitions||[]).filter(t=>t.to===String(to));
+    return hit.length ? Object.assign({}, hit[0], {
+      boundsAtDiscovery:rec.exhaustiveUnder, boundsNow:rec.boundsNow,
+      claim:'a transition exists under this rule — nothing is asserted about what it means'})
+      : {from:String(cite), to:String(to), status: rec.status==='UNEXPLORED' ? 'UNEXPLORED'
+           : ((LED.inv[String(cite)]||[]).filter(x=>x[0]===String(to))[0]
+              ? 'REFUSED' : 'NOT ADMITTED'),
+         refused:(rec.refused||[]).filter(r=>r.to===String(to)),
+         note:'no admitted transition recorded — this is not a claim that none can exist'};
+  },
   surahs:()=>D.names.map(([ar,en],i)=>({n:i+1, ar, en, ayat:nAyat(i+1)})),
   state:()=>({
     anchor: ANCHOR ? {sura:ANCHOR[0], aya:ANCHOR[1], word:ANCHOR[2],
